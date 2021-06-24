@@ -1,8 +1,8 @@
 package com.enderzombi102.mception;
 
-import com.enderzombi102.mception.block.ComputerBlock;
-import com.enderzombi102.mception.block.ComputerBlockEntity;
-import com.enderzombi102.mception.screen.ComputerScreenHandler;
+import com.enderzombi102.mception.computer.ComputerBlock;
+import com.enderzombi102.mception.computer.ComputerBlockEntity;
+import com.enderzombi102.mception.computer.ComputerScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -34,7 +34,7 @@ public class MCeption implements ModInitializer {
 						COMPUTER_BLOCK,
 						new FabricItemSettings()
 								.group(ItemGroup.DECORATIONS)
-								.rarity(Rarity.RARE)
+								.rarity(Rarity.UNCOMMON)
 				)
 		);
 		COMPUTER_BLOCK_ENTITY_TYPE = Registry.register(

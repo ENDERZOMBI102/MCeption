@@ -8,6 +8,14 @@ group = project.maven_group
 
 repositories {
 	mavenCentral()
+	maven {
+		name 'AperLambda'
+		url 'https://aperlambda.github.io/maven'
+	}
+	maven {
+		name 'Gegy'
+		url 'https://maven.gegy.dev'
+	}
 }
 
 dependencies {
@@ -18,8 +26,13 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
 
-	implementation 'net.java.dev.jna:jna:5.8.0'
-	implementation 'net.openhft:chronicle-queue:5.21ea66'
+	modImplementation "dev.lambdaurora:spruceui:$spruceui_version"
+	include "dev.lambdaurora:spruceui:$spruceui_version"
+
+
+	implementation "net.java.dev.jna:jna:$jna_version"
+	implementation "net.openhft:chronicle-queue:$cqueue_version"
+	implementation "blue.endless:jankson:$jankson_version"
 }
 
 processResources {

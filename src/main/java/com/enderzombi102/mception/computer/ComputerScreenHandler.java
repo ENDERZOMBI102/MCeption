@@ -1,4 +1,4 @@
-package com.enderzombi102.mception.screen;
+package com.enderzombi102.mception.computer;
 
 import com.enderzombi102.mception.MCeption;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,8 +19,9 @@ public class ComputerScreenHandler extends ScreenHandler {
 		this( syncId, playerInventory, new SimpleInventory(9) );
 	}
 
-	//This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
-	//and can therefore directly provide it as an argument. This inventory will then be synced to the client.
+	// This constructor gets called from the BlockEntity on the server without calling the other constructor first,
+	// the server knows the inventory of the container
+	// and can therefore directly provide it as an argument. This inventory will then be synced to the client.
 	public ComputerScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
 		super(MCeption.COMPUTER_SCREEN_HANDLER, syncId);
 		checkSize(inventory, 9);

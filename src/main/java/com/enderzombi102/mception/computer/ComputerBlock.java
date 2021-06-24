@@ -1,22 +1,17 @@
-package com.enderzombi102.mception.block;
+package com.enderzombi102.mception.computer;
 
-import com.enderzombi102.mception.screen.ComputerScreenHandler;
+import com.enderzombi102.mception.MCeption;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -25,7 +20,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityProvider, NamedScreenHandlerFactory {
+public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityProvider {
 
 	public static final BooleanProperty ACTIVE = BooleanProperty.of("active");
 
@@ -72,6 +67,13 @@ public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityP
 		stateManager.add(ACTIVE);
 	}
 
+	@Nullable
+	@Override
+	public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
+		return world.getBlockEntity(pos, MCeption.COMPUTER_BLOCK_ENTITY_TYPE)
+				.orElseGet(() -> null);
+	}
+
 	// horizontal facing block
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
 		return this.getDefaultState().with(
@@ -86,18 +88,5 @@ public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityP
 	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new ComputerBlockEntity(pos, state);
-	}
-
-	// named screen handled factory
-
-	@Override
-	public Text getDisplayName() {
-		return new LiteralText("Computer Screen");
-	}
-
-	@Nullable
-	@Override
-	public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-		return new ComputerScreenHandler(syncId, inv);
 	}
 }

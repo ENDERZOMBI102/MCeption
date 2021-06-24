@@ -1,7 +1,7 @@
 package com.enderzombi102.mception.client;
 
 import com.enderzombi102.mception.MCeption;
-import com.enderzombi102.mception.screen.ComputerScreen;
+import com.enderzombi102.mception.client.screen.ComputerScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
