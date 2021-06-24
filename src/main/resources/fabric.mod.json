@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "mception",
+	"version": "${version}",
+	"name": "MCeption",
+	"description": "Play minecraft 1.0 inside minecraft 1.17!",
+	"authors": [
+		"ENDERZOMBI102"
+	],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/mception/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.enderzombi102.mception.client.MCeptionClient"
+		],
+		"main": [
+			"com.enderzombi102.mception.MCeption"
+		]
+	},
+	"mixins": [
+		"mception.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.11.6",
+		"fabric": "*",
+		"minecraft": "1.17"
+	}
+}

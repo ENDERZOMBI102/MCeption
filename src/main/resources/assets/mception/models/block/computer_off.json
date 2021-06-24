@@ -1,0 +1,27 @@
+{
+	"credit": "Made with Blockbench By ENDERZOMBI102",
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"1": "mception:block/computer_side_b",
+		"2": "mception:block/computer_front_off",
+		"3": "mception:block/computer_back",
+		"4": "mception:block/computer_top",
+		"5": "mception:block/computer_bottom",
+		"6": "mception:block/computer_side_a",
+		"particle": "mception:block/computer_top"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#2"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#6"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#3"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#4"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#5"}
+			}
+		}
+	]
+}
