@@ -10,30 +10,31 @@ import java.nio.file.Path;
 public class Installer {
 
 	private static final Path GAME_DIR = FabricLoader.getInstance().getGameDir();
-	private static final Path MCEPTION_DIR = GAME_DIR.resolve("MCeption");
+	static final Path MCEPTION_DIR = GAME_DIR.resolve("MCeption");
+	private static final Path BIN_DIR = MCEPTION_DIR.resolve("bin");
 
 	public static void doInstall() throws IOException {
 		// create main file dir
-		Files.createDirectories(MCEPTION_DIR);
+		Files.createDirectories(BIN_DIR);
 		// install jinput
 		new Download( getJinput() ).downloadTo( MCEPTION_DIR.resolve("jinput-natives.jar") );
-		UnzipUtility.unzip( MCEPTION_DIR.resolve("jinput-natives.jar"), MCEPTION_DIR);
+		UnzipUtility.unzip( BIN_DIR.resolve("jinput-natives.jar"), BIN_DIR);
 		new Download( "https://libraries.minecraft.net/net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar" )
-				.downloadTo( MCEPTION_DIR.resolve("jinput.jar") );
+				.downloadTo( BIN_DIR.resolve("jinput.jar") );
 		// install jutils
 		new Download( "https://libraries.minecraft.net/net/java/jutils/jutils/1.0.0/jutils-1.0.0.jar" )
-				.downloadTo( MCEPTION_DIR.resolve("jutils.jar") );
+				.downloadTo( BIN_DIR.resolve("jutils.jar") );
 		// install lwjgl
-		new Download( getLwjgl() ).downloadTo( MCEPTION_DIR.resolve("lwjgl-natives.jar") );
-		UnzipUtility.unzip( MCEPTION_DIR.resolve("lwjgl-natives.jar"), MCEPTION_DIR);
+		new Download( getLwjgl() ).downloadTo( BIN_DIR.resolve("lwjgl-natives.jar") );
+		UnzipUtility.unzip( BIN_DIR.resolve("lwjgl-natives.jar"), BIN_DIR);
 		new Download( "https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl/2.9.4-nightly-20150209/lwjgl-2.9.4-nightly-20150209.jar" )
-				.downloadTo( MCEPTION_DIR.resolve("lwjgl.jar") );
+				.downloadTo( BIN_DIR.resolve("lwjgl.jar") );
 		// install lwjgl-util
 		new Download( "https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl_util/2.9.4-nightly-20150209/lwjgl_util-2.9.4-nightly-20150209.jar" )
-				.downloadTo( MCEPTION_DIR.resolve("lwjgl-util.jar") );
+				.downloadTo( BIN_DIR.resolve("lwjgl-util.jar") );
 		// install minecraft
 		new Download( "https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar" )
-				.downloadTo( MCEPTION_DIR.resolve("client.jar") );
+				.downloadTo( BIN_DIR.resolve("client.jar") );
 		// install resources
 		doInstallResources();
 	}
