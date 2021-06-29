@@ -14,10 +14,13 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.registry.Registry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MCeption implements ModInitializer {
 
 	public static final ComputerBlock COMPUTER_BLOCK;
+	public static final Logger LOGGER = LogManager.getLogger("MCeption");
 	public static final BlockEntityType<ComputerBlockEntity> COMPUTER_BLOCK_ENTITY_TYPE;
 	public static final ScreenHandlerType<ComputerScreenHandler> COMPUTER_SCREEN_HANDLER;
 
@@ -52,9 +55,7 @@ public class MCeption implements ModInitializer {
 	}
 
 	@Override
-	public void onInitialize() {
-
-	}
+	public void onInitialize() { }
 
 	public static Identifier ID(String path) {
 		return new Identifier("mception", path);

@@ -1,5 +1,6 @@
 package com.enderzombi102.mception.client.screen;
 
+import com.enderzombi102.mception.client.MinecraftRunner;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -27,6 +28,16 @@ public class ComputerScreen extends HandledScreen<ScreenHandler> {
 	@Override
 	protected void init() {
 		super.init();
+//		if ( MinecraftRunner.instance != null ) {
+//			MinecraftRunner.instance = new MinecraftRunner();
+//		}
+//		if (! MinecraftRunner.instance.running ) {
+//			MinecraftRunner.instance.run();
+//		}
+//		MinecraftRunner.instance.show();
+		var x = new MinecraftRunner();
+		x.run();
+		x.show();
 	}
 
 	@Override
