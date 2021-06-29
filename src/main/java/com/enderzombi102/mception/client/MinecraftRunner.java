@@ -86,9 +86,9 @@ public class MinecraftRunner {
 							BinInstaller.getBinary("lwjgl").toUri().toURL(),
 							BinInstaller.getBinary("lwjgl-util").toUri().toURL(),
 							BinInstaller.getBinary("client").toUri().toURL(),
+							BinInstaller.getBinary("client").getParent().toUri().toURL(),
 							ResourceInstaller.getResources().toUri().toURL(),
-							getLocation(McClassLoader.class),
-							getLocation(McRunnable.class)
+							getLocation(McClassLoader.class)
 					}
 			);
 		}

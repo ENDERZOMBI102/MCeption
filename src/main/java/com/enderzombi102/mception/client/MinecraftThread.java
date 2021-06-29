@@ -18,7 +18,7 @@ public class MinecraftThread extends Thread implements McRunnable {
 	public void run() {
 		try {
 			System.setProperty( "org.lwjgl.librarypath", libpath);
-			Thread.currentThread().getContextClassLoader().loadClass("net.minecraft.client.Minecraft")
+			Class.forName("net.minecraft.client.Minecraft")
 					.getMethod("main", String[].class)
 					.invoke(null, new Object[] { argv } );
 		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
