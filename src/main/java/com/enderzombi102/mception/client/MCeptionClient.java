@@ -16,9 +16,10 @@ import static com.enderzombi102.mception.MCeption.LOGGER;
 @Environment(net.fabricmc.api.EnvType.CLIENT)
 public class MCeptionClient implements ClientModInitializer {
 
-	static final Path MCEPTION_DIR = FabricLoader.getInstance().getGameDir().resolve("MCeption");
+	static final Path GAME_DIR = FabricLoader.getInstance().getGameDir();
+	static final Path MCEPTION_DIR = GAME_DIR.resolve("MCeption");
 	public static boolean installationSucceeded = false;
-	public static MinecraftRunner runner = new MinecraftRunner();
+	public static GuestRunner runner = new GuestRunner();
 
 	@Override
 	@SuppressWarnings("ResultOfMethodCallIgnored")
