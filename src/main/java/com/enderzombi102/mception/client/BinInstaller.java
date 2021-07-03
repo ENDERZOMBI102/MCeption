@@ -1,8 +1,16 @@
 package com.enderzombi102.mception.client;
 
+import net.fabricmc.loader.util.mappings.TinyRemapperMappingsHelper;
+import net.fabricmc.mapping.tree.TinyMappingFactory;
+import net.fabricmc.mapping.tree.TinyTree;
+import net.fabricmc.tinyremapper.OutputConsumerPath;
+import net.fabricmc.tinyremapper.TinyRemapper;
 import org.apache.commons.lang3.SystemUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -40,8 +48,9 @@ public class BinInstaller {
 		// install minecraft
 		installIfNotPresent(
 				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
-				getBinary("client")
+				getBinary("client-obf")
 		);
+		remapClient();
 	}
 
 	private static String getJinput() {
@@ -87,5 +96,43 @@ public class BinInstaller {
 
 	public static Path getBinary(String bin) {
 		return BIN_DIR.resolve(bin + ".jar");
+	}
+
+	private static void remapClient() {
+		TinyRemapper remapper = net.fabricmc.tinyremapper.TinyRemapper.newRemapper()
+				.withMappings( TinyRemapperMappingsHelper.create( getMappings(), "official", "named"  ) )
+				.rebuildSourceFilenames(true)
+				.build();
+		try ( OutputConsumerPath outConsumer = new OutputConsumerPath
+				.Builder( getBinary("client") )
+				.filter( cls -> !cls.startsWith("org/apache/logging/log4j/") )
+				.build()
+		) {
+			// try to remap
+			remapper.readInputs( getBinary("client-obf") );
+			remapper.apply(outConsumer);
+
+		} catch (IOException e) {
+			// an error occurred
+			e.printStackTrace();
+		} finally {
+			// finish the remapping process
+			remapper.finish();
+		}
+	}
+
+	private static TinyTree getMappings() {
+		InputStream stream = BinInstaller.class.getResourceAsStream("mappings.tiny");
+		assert stream != null;
+		try {
+			return TinyMappingFactory.loadWithDetection(
+					new BufferedReader(
+							new InputStreamReader( stream )
+					)
+			);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return TinyMappingFactory.EMPTY_TREE;
+		}
 	}
 }

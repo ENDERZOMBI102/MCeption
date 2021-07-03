@@ -18,6 +18,7 @@ public class GuestRunner {
 		// java
 		builder.append( System.getProperty("java.home") ).append("/bin/java.exe");
 		// classpath
+		// TODO: THIS IS DUMB please use a method to get the arguments
 		builder.append(" -cp ").append(
 				"bin/client.jar;bin/jinput.jar;bin/jutils.jar;bin/lwjgl.jar;bin/lwjgl-util.jar;bin/;resources/"
 		).append( ";\"" ).append(
@@ -28,7 +29,7 @@ public class GuestRunner {
 			builder.append(";");
 		// main class
 		builder.append(" com.enderzombi102.mception.guest.Main");
-
+		
 		COMMAND = builder.toString();
 	}
 

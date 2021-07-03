@@ -2,17 +2,16 @@ package com.enderzombi102.mception.guest;
 
 import io.mappedbus.MappedBusReader;
 import io.mappedbus.MappedBusWriter;
-import net.openhft.chronicle.core.io.Closeable;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
-public class Pipe implements Closeable {
+public class Pipe {
 
-	private MappedBusReader reader;
-	private MappedBusWriter writer;
-	private boolean closed = false;
+	private final MappedBusReader reader;
+	private final MappedBusWriter writer;
 
 
 	public Pipe(Side side) throws IOException {
@@ -23,11 +22,13 @@ public class Pipe implements Closeable {
 	}
 
 	public byte[] read() throws IOException {
-		return reader.readMessage();
+		byte[] data = new byte[] {};
+		reader.readBuffer( data, 0 );
+		return data;
 	}
 
-	public void send(byte[] bytes) {
-		writer.open();
+	public void send(byte[] bytes) throws EOFException {
+		writer.write(bytes, 0, bytes.length);
 	}
 
 	private static String getFileLocation(String file) {
@@ -51,16 +52,6 @@ public class Pipe implements Closeable {
 				return null;
 			}
 		}
-	}
-
-	@Override
-	public void close() {
-		closed = true;
-	}
-
-	@Override
-	public boolean isClosed() {
-		return closed;
 	}
 
 	enum Side {
