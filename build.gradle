@@ -32,15 +32,11 @@ dependencies {
 
 	modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
 
-	modImplementation "dev.lambdaurora:spruceui:$spruceui_version"
-	include "dev.lambdaurora:spruceui:$spruceui_version"
 
-
-	implementation "net.java.dev.jna:jna:$jna_version"
 	shade implementation( "blue.endless:jankson:$jankson_version" )
 	shade implementation( "com.github.caplogic:mappedbus:$mappedbus_version" )
 	shade implementation( "org.apache.logging.log4j:log4j-core:$log4j_version" )
-	shade project(':mception-guest')
+	shade implementation( project(':mception-guest') )
 }
 
 shadowJar {

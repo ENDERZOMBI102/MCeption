@@ -64,7 +64,7 @@ public class Pipe {
 		}
 	}
 
-	enum Side {
+	public enum Side {
 		Host,
 		Guest
 	}

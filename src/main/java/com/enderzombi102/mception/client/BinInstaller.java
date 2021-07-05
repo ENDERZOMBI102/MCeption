@@ -105,7 +105,7 @@ public class BinInstaller {
 				getBinary("jutils").toFile().exists() &&
 				getBinary("lwjgl").toFile().exists() &&
 				getBinary("lwjgl-util").toFile().exists() &&
-				getBinary("client").toFile().exists(); // &&
+				getBinary("client").toFile().exists();// &&
 //				getBinary("client").toFile().length() > getBinary("client-obf").toString().length();
 	}
 
@@ -133,7 +133,7 @@ public class BinInstaller {
 
 		LOGGER.info("[MCeption] Remapping client.jar");
 		TinyRemapper remapper = net.fabricmc.tinyremapper.TinyRemapper.newRemapper()
-				.withMappings( MappingUtils.create( getMappings(), "official", "named" ) )
+				.withMappings( MappingUtils.create( getMappings(), "client", "named" ) )
 				.rebuildSourceFilenames(true)
 				.build();
 		try (
