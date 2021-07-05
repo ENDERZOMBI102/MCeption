@@ -29,25 +29,25 @@ public class MCeptionClient implements ClientModInitializer {
 		LOGGER.info("[MCeption] Checking installation...");
 		MCEPTION_DIR.toFile().mkdirs();
 		if (! BinInstaller.isInstalled() ) {
-			LOGGER.info("[MCeption] No binaries detected!");
-			LOGGER.info("[MCeption] Installing minecraft 1.1 binaries...");
+			LOGGER.info("[MCeption] Missing binaries detected!");
+			LOGGER.info("[MCeption] Installing minecraft 1.2.5 binaries...");
 			try {
 				BinInstaller.doInstall();
 				LOGGER.info("[MCeption] Binaries installation finished!");
 			} catch (IOException e) {
-				LOGGER.fatal("[MCeption] Binaries installation failed! mc 1.1 will not work!", e);
+				LOGGER.fatal("[MCeption] Binaries installation failed! mc 1.2.5 will not work!", e);
 				return;
 			}
 		} else LOGGER.info("[MCeption] Binaries present!");
 
 		if (! ResourceInstaller.isInstalled() ) {
 			LOGGER.info("[MCeption] No resources detected!");
-			LOGGER.info("[MCeption] Installing minecraft 1.1 resources...");
+			LOGGER.info("[MCeption] Installing minecraft 1.2.5 resources...");
 			try {
 				ResourceInstaller.doInstall();
 				LOGGER.info("[MCeption] Resources installation finished!");
 			} catch (IOException | SyntaxError e) {
-				LOGGER.fatal("[MCeption] Resources installation failed! mc 1.1 will not work correctly!", e);
+				LOGGER.fatal("[MCeption] Resources installation failed! mc 1.2.5 will not work correctly!", e);
 				return;
 			}
 		} else LOGGER.info("[MCeption] Resources present!");
