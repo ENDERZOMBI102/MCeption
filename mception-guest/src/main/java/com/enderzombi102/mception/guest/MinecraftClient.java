@@ -1,26 +1,29 @@
 package com.enderzombi102.mception.guest;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Minecraft$class_994;
+import net.minecraft.client.Minecraft$class_996;
 import net.minecraft.client.MinecraftApplet;
+import net.minecraft.client.crash.CrashInfo;
+import net.minecraft.client.util.Session;
 
 import java.awt.*;
 
-public abstract class MinecraftClient extends Minecraft {
+public class MinecraftClient extends Minecraft {
 
 	public MinecraftClient(Component component, Canvas canvas, MinecraftApplet minecraftApplet, int i, int i1, boolean b) {
 		super(component, canvas, minecraftApplet, i, i1, b);
 	}
 
-	public static void main(String playerName, String password) {
-		a(playerName, password);
+	@Override
+	public void method_3285(CrashInfo crashInfo) {
+		// on crash
+
 	}
 
-	public static void a(String playerName, String password) {
-		a(playerName, password, (String)null);
-	}
-
-	public static void a(String playerName, String password, String paramString3) {
+	public static void main(String playerName, String session, String nullByDefault) {
 		boolean bool = false;
+		String str = playerName;
 
 		Frame frame = new Frame("Minecraft");
 		Canvas canvas = new Canvas();
@@ -28,38 +31,45 @@ public abstract class MinecraftClient extends Minecraft {
 
 		frame.add(canvas, "Center");
 
-		canvas.setPreferredSize(new Dimension(854, 480));
+		canvas.setPreferredSize( new Dimension(854, 480) );
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 
-		hd hd = new hd(frame, canvas, null, 854, 480, bool, frame);
+		Minecraft$class_996 minecraft$class_996 = new Minecraft$class_996(
+				frame,
+				canvas,
+				null,
+				854,
+				480,
+				bool,
+				frame
+		);
 
-		Thread thread = new Thread(hd, "Minecraft main thread");
+		Thread thread = new Thread(minecraft$class_996, "Minecraft main thread");
 		thread.setPriority(10);
-		hd.l = "www.minecraft.net";
+		minecraft$class_996.field_4186 = "www.minecraft.net";
 
 
-		if (playerName != null && password != null) {
-			hd.k = new ev(playerName, password);
+		if (str != null && session != null) {
+			minecraft$class_996.session = new Session(str, session);
 		} else {
-			hd.k = new ev("Player" + (System.currentTimeMillis() % 1000L), "");
+			minecraft$class_996.session = new Session(
+					"Player" + (System.currentTimeMillis() % 1000L),
+					""
+			);
 		}
 
-		if (paramString3 != null) {
-			String[] arrayOfString = paramString3.split(":");
-			hd.a(arrayOfString[0], Integer.parseInt(arrayOfString[1]));
+		if (nullByDefault != null) {
+			String[] arrayOfString = nullByDefault.split(":");
+			minecraft$class_996.method_3297(
+					arrayOfString[0],
+					Integer.parseInt(arrayOfString[1])
+			);
 		}
 
 		frame.setVisible(true);
-		frame.addWindowListener(new gy(hd, thread));
+		frame.addWindowListener( new Minecraft$class_994( minecraft$class_996, thread ) );
 
 		thread.start();
-	}
-
-	@Override
-	public void a(im paramim) {
-		this.a.removeAll();
-		this.a.add(new to(paramim), "Center");
-		this.a.validate();
 	}
 }

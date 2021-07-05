@@ -48,11 +48,12 @@ public class BinInstaller {
 				getBinary("lwjgl-util")
 		);
 		// install minecraft 1.2.5
-		installIfNotPresent(
-				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
-				getBinary("client-obf")
-		);
-		remapClient();
+//		installIfNotPresent(
+//				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
+//				getBinary("client-obf")
+//		);
+//		remapClient();
+		extractJar();
 		// remove meta inf
 		Files.deleteIfExists( BIN_DIR.resolve("META-INF").resolve("MANIFEST.MF") );
 		Files.deleteIfExists( BIN_DIR.resolve("META-INF") );
@@ -104,13 +105,22 @@ public class BinInstaller {
 				getBinary("jutils").toFile().exists() &&
 				getBinary("lwjgl").toFile().exists() &&
 				getBinary("lwjgl-util").toFile().exists() &&
-				getBinary("client").toFile().exists() &&
-				getBinary("client").toFile().length() >= getBinary("client-obf").toFile().length();
-
+				getBinary("client").toFile().exists(); // &&
+//				getBinary("client").toFile().length() > getBinary("client-obf").toString().length();
 	}
 
 	public static Path getBinary(String bin) {
 		return BIN_DIR.resolve(bin + ".jar");
+	}
+
+	private static void extractJar() throws IOException {
+		if ( getBinary("client").toFile().exists() ) return;
+		Files.write(
+				getBinary("client"),
+				Objects.requireNonNull(
+						BinInstaller.class.getResourceAsStream("/client.jar")
+				).readAllBytes()
+		);
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
@@ -123,13 +133,14 @@ public class BinInstaller {
 
 		LOGGER.info("[MCeption] Remapping client.jar");
 		TinyRemapper remapper = net.fabricmc.tinyremapper.TinyRemapper.newRemapper()
-				.withMappings( TinyRemapperMappingsHelper.create( getMappings(), "official", "named"  ) )
+				.withMappings( MappingUtils.create( getMappings(), "official", "named" ) )
 				.rebuildSourceFilenames(true)
 				.build();
-		try ( OutputConsumerPath outConsumer = new OutputConsumerPath
-				.Builder( getBinary("client") )
-				.filter( cls -> !cls.startsWith("org/apache/logging/log4j/") )
-				.build()
+		try (
+				OutputConsumerPath outConsumer = new OutputConsumerPath
+						.Builder( getBinary("client") )
+						.filter( cls -> !cls.startsWith("org/apache/logging/log4j/") )
+						.build()
 		) {
 			// try to remap
 			remapper.readInputs( getBinary("client-obf") );
@@ -147,15 +158,27 @@ public class BinInstaller {
 	private static TinyTree getMappings() {
 		InputStream stream = BinInstaller.class.getResourceAsStream("/mappings.tiny");
 		Objects.requireNonNull(stream);
+		TinyTree tree;
 		try {
-			return TinyMappingFactory.loadWithDetection(
-					new BufferedReader(
-							new InputStreamReader( stream )
+			tree = MappingUtils.wrapTree(
+					TinyMappingFactory.loadWithDetection(
+						new BufferedReader(
+								new InputStreamReader( stream )
+						)
 					)
 			);
 		} catch (IOException e) {
-			e.printStackTrace();
-			return TinyMappingFactory.EMPTY_TREE;
+			LOGGER.error( "[MCeption] error while reading stream!", e );
+			tree = TinyMappingFactory.EMPTY_TREE;
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				LOGGER.error( "[MCeption] error while closing stream! WTF!", e );
+			}
 		}
+		return tree;
 	}
+
+
 }

@@ -9,12 +9,8 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-/**
- * This utility extracts files and directories of a standard zip file to
- * a destination directory.
- * @author www.codejava.net
- *
- */
+
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class UnzipUtility {
 
 	/**
@@ -50,7 +46,7 @@ public class UnzipUtility {
 		// iterates over entries in the zip file
 		while (entry != null) {
 			String filePath = destDirectory + File.separator + entry.getName();
-			if (!entry.isDirectory()) {
+			if (! entry.isDirectory() ) {
 				// if the entry is a file, extracts it
 				extractFile(zipIn, filePath);
 			} else {
@@ -71,10 +67,10 @@ public class UnzipUtility {
 	 * @throws IOException yes
 	 */
 	private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
-		BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+		BufferedOutputStream bos = new BufferedOutputStream( new FileOutputStream(filePath) );
 		byte[] bytesIn = new byte[BUFFER_SIZE];
-		int read = 0;
-		while ((read = zipIn.read(bytesIn)) != -1) {
+		int read;
+		while ( ( read = zipIn.read(bytesIn) ) != -1 ) {
 			bos.write(bytesIn, 0, read);
 		}
 		bos.close();

@@ -27,8 +27,18 @@ public class Pipe {
 		return data;
 	}
 
+	public String readString() throws IOException {
+		byte[] data = new byte[] {};
+		reader.readBuffer( data, 0 );
+		return new String( data );
+	}
+
 	public void send(byte[] bytes) throws EOFException {
 		writer.write(bytes, 0, bytes.length);
+	}
+
+	public void send(String data) throws EOFException {
+		writer.write(data.getBytes(), 0, data.getBytes().length);
 	}
 
 	private static String getFileLocation(String file) {

@@ -21,11 +21,14 @@ public class Main {
 		}
 
 		String playerName = "";
+		String session = "";
 
 		try {
 			LOGGER.info("[Main] Trying to get configuration data...");
 			System.setProperty("org.lwjgl.util.Debug", "true");
-			System.setProperty("org.lwjgl.librarypath", new String( mainPipe.read() ) );
+			System.setProperty("org.lwjgl.librarypath", mainPipe.readString() );
+			playerName = mainPipe.readString();
+			session = mainPipe.readString();
 		} catch (IOException e) {
 			LOGGER.fatal("[Main] Failed to get configuration data! Aborting...");
 			System.exit(1);
