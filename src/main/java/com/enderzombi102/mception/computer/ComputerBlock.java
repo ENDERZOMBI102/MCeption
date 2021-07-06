@@ -1,10 +1,12 @@
 package com.enderzombi102.mception.computer;
 
 import com.enderzombi102.mception.MCeption;
+import com.enderzombi102.mception.client.screen.ComputerScreen;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -42,15 +44,8 @@ public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityP
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (! world.isClient ) {
-			//This will call the createScreenHandlerFactory method from BlockWithEntity, which will return our blockEntity casted to
-			//a namedScreenHandlerFactory. If your block class does not extend BlockWithEntity, it needs to implement createScreenHandlerFactory.
-			NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-
-			if (screenHandlerFactory != null) {
-				// With this call the server will request the client to open the appropriate ScreenHandler
-				player.openHandledScreen(screenHandlerFactory);
-			}
+		if (world.isClient) {
+			MinecraftClient.getInstance().openScreen( new ComputerScreen() );
 		}
 		return ActionResult.SUCCESS;
 	}
@@ -65,13 +60,6 @@ public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityP
 	protected void appendProperties(StateManager.Builder<Block, BlockState> stateManager) {
 		stateManager.add(Properties.HORIZONTAL_FACING);
 		stateManager.add(ACTIVE);
-	}
-
-	@Nullable
-	@Override
-	public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
-		return world.getBlockEntity(pos, MCeption.COMPUTER_BLOCK_ENTITY_TYPE)
-				.orElseGet(() -> null);
 	}
 
 	// horizontal facing block

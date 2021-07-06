@@ -51,6 +51,7 @@ public class MinecraftClient extends Minecraft {
 		canvas.setPreferredSize( new Dimension(854, 480) );
 		frame.pack();
 		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 
 		mcClient = new MinecraftClient(
 				frame,

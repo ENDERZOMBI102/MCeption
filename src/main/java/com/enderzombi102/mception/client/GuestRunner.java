@@ -1,9 +1,7 @@
 package com.enderzombi102.mception.client;
 
 import blue.endless.jankson.Jankson;
-import com.enderzombi102.mception.guest.Dataclasses;
-import com.enderzombi102.mception.guest.Message;
-import com.google.gson.Gson;
+import com.enderzombi102.mception.guest.Dataclasses.*;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.EOFException;
@@ -11,31 +9,31 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-import com.enderzombi102.mception.guest.Pipe;
+import com.enderzombi102.mception.guest.McPipe;
 
 import static com.enderzombi102.mception.MCeption.LOGGER;
-import static com.enderzombi102.mception.guest.Pipe.Side;
+import static com.enderzombi102.mception.guest.McPipe.Side;
 
 @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "unused", "OptionalGetWithoutIsPresent"})
 public class GuestRunner {
 
 	private static final Jankson JANKSON = new Jankson.Builder().allowBareRootObject().build();
 	private Process mcProcess;
-	private Pipe mainPipe;
+	private McPipe mainPipe;
 	public boolean running = false;
 
 	// this successfully runs mc
 	// java -cp client.jar;jinput.jar;jutils.jar;lwjgl.jar;lwjgl-util.jar;../resources net.minecraft.client.Minecraft
 	public void run() {
 		try {
-			LOGGER.error( "[GuestRunner] Creating pipe!" );
-			mainPipe = new Pipe(Side.Host);
+			LOGGER.info( "[GuestRunner] Creating pipe!" );
+			mainPipe = new McPipe(Side.Host);
 		} catch (IOException e) {
 			LOGGER.error( "[GuestRunner] Failed to open pipe!", e );
 			return;
 		}
 		try {
-			LOGGER.error( "[GuestRunner] Strating process!" );
+			LOGGER.info( "[GuestRunner] Strating process!" );
 			mcProcess = new ProcessBuilder()
 					.directory( MCeptionClient.MCEPTION_DIR.toFile() )
 					.command( getCommand() )
@@ -50,8 +48,16 @@ public class GuestRunner {
 		running = false;
 	}
 
-	public Pipe getPipe() {
+	public void tick() {
+		mainPipe.tick();
+	}
+
+	public McPipe getPipe() {
 		return mainPipe;
+	}
+
+	public Process getProcess() {
+		return mcProcess;
 	}
 
 	private static String getModPath() {
@@ -100,6 +106,7 @@ public class GuestRunner {
 	}
 
 	public void send(Message message) {
+		if (! running ) return;
 		try {
 			mainPipe.send( JANKSON.toJson(message).toJson() );
 		} catch (EOFException e) {

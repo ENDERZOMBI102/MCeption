@@ -9,12 +9,12 @@ import org.apache.logging.log4j.Logger;
 import java.io.EOFException;
 import java.io.IOException;
 
-import static com.enderzombi102.mception.guest.Pipe.Side;
+import static com.enderzombi102.mception.guest.McPipe.Side;
 import static com.enderzombi102.mception.guest.Dataclasses.Message;
 
 public class Main {
 
-	static Pipe mainPipe;
+	static McPipe mainPipe;
 	static final Logger LOGGER = LogManager.getLogger("MCeptionMain");
 	static Thread responseLoop;
 	static MinecraftClient client;
@@ -22,10 +22,9 @@ public class Main {
 
 	public static void main(String[] argv) {
 		try {
-			mainPipe = new Pipe(Side.Guest);
+			mainPipe = new McPipe(Side.Guest);
 		} catch (IOException e) {
-			LOGGER.error("[Main] Failed to open pipe! Aborting...");
-			System.exit(1);
+			fatalError("[Main] Failed to open pipe! Aborting...", e);
 		}
 
 		String playerName = "Player";
@@ -37,9 +36,8 @@ public class Main {
 			System.setProperty("org.lwjgl.librarypath", mainPipe.readString() );
 			playerName = mainPipe.readString();
 			uuid = mainPipe.readString();
-		} catch (IOException e) {
-			LOGGER.fatal("[Main] Failed to get configuration data! Aborting...");
-			System.exit(1);
+		} catch (NoMessage | IOException e) {
+			fatalError("[Main] Failed to get configuration data! Aborting...");
 		}
 
 		LOGGER.info("[Main] Starting game!");
@@ -47,6 +45,7 @@ public class Main {
 		LOGGER.info("[Main] Starting response loop!");
 		responseLoop = new Thread( () -> {
 			while ( true ) {
+				mainPipe.tick();
 				try {
 					Message msg = JANKSON.fromJson( mainPipe.readString(), Message.class );
 					if ( msg.needScreen ) {
@@ -57,9 +56,11 @@ public class Main {
 					client.doInput(msg.input);
 				} catch (IOException | SyntaxError e) {
 					sendError(e);
-				}
+				} catch (NoMessage ignored) { }
 			}
 		} );
+		LOGGER.info("[Main] Sending start confirmation!");
+		send("started");
 	}
 
 	public static void send(String text) {
@@ -75,5 +76,15 @@ public class Main {
 	}
 
 	public static void sendCrash(CrashInfo crashInfo) {
+	}
+
+	public static void fatalError(String msg, Throwable e) {
+		LOGGER.fatal(msg, e);
+		System.exit(1);
+	}
+
+	public static void fatalError(String msg) {
+		LOGGER.fatal(msg);
+		System.exit(1);
 	}
 }

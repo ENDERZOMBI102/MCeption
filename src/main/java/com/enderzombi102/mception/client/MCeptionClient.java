@@ -1,11 +1,8 @@
 package com.enderzombi102.mception.client;
 
 import blue.endless.jankson.api.SyntaxError;
-import com.enderzombi102.mception.MCeption;
-import com.enderzombi102.mception.client.screen.ComputerScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -25,7 +22,6 @@ public class MCeptionClient implements ClientModInitializer {
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void onInitializeClient() {
 		LOGGER.info("[MCeption] Initializing!");
-		ScreenRegistry.register(MCeption.COMPUTER_SCREEN_HANDLER, ComputerScreen::new);
 		LOGGER.info("[MCeption] Checking installation...");
 		MCEPTION_DIR.toFile().mkdirs();
 		if (! BinInstaller.isInstalled() ) {

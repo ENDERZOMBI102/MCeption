@@ -2,7 +2,6 @@ package com.enderzombi102.mception;
 
 import com.enderzombi102.mception.computer.ComputerBlock;
 import com.enderzombi102.mception.computer.ComputerBlockEntity;
-import com.enderzombi102.mception.computer.ComputerScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -22,7 +21,6 @@ public class MCeption implements ModInitializer {
 	public static final ComputerBlock COMPUTER_BLOCK;
 	public static final Logger LOGGER = LogManager.getLogger("MCeption");
 	public static final BlockEntityType<ComputerBlockEntity> COMPUTER_BLOCK_ENTITY_TYPE;
-	public static final ScreenHandlerType<ComputerScreenHandler> COMPUTER_SCREEN_HANDLER;
 
 	static {
 		COMPUTER_BLOCK = Registry.register(
@@ -47,10 +45,6 @@ public class MCeption implements ModInitializer {
 						ComputerBlockEntity::new,
 						COMPUTER_BLOCK
 				).build(null)
-		);
-		COMPUTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(
-				ID("computer_block"),
-				ComputerScreenHandler::new
 		);
 	}
 

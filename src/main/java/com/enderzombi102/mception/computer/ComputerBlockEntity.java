@@ -13,7 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-public class ComputerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory {
+public class ComputerBlockEntity extends BlockEntity {
 
 	public ComputerBlockEntity(BlockPos pos, BlockState state) {
 		super(MCeption.COMPUTER_BLOCK_ENTITY_TYPE, pos, state);
@@ -32,16 +32,4 @@ public class ComputerBlockEntity extends BlockEntity implements NamedScreenHandl
 	public void readNbt(NbtCompound tag) {
 		super.readNbt(tag);
 	}
-
-	@Override
-	public Text getDisplayName() {
-		return new LiteralText("Computer Screen");
-	}
-
-	@Nullable
-	@Override
-	public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-		return new ComputerScreenHandler(syncId, inv);
-	}
-
 }

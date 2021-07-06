@@ -19,5 +19,20 @@ public class Dataclasses {
 		public Input input;
 		public Screen screen;
 		public boolean needScreen;
+
+		public Message() { }
+
+		public Message(boolean needScreen) {
+			this.needScreen = needScreen;
+		}
+
+		public Message(Input input) {
+			this.input = input;
+		}
+
+		public Message(Input input, boolean needScreen) {
+			this.needScreen = needScreen;
+			this.input = input;
+		}
 	}
 }
