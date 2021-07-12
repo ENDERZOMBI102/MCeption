@@ -35,6 +35,7 @@ dependencies {
 
 	shade implementation( "blue.endless:jankson:$jankson_version" )
 	shade implementation( "org.apache.logging.log4j:log4j-core:$log4j_version" )
+	shade implementation( "org.apache.logging.log4j:log4j-api:$log4j_version" )
 	shade implementation( project(':mception-guest') )
 }
 

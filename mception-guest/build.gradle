@@ -10,9 +10,11 @@ repositories {
 	maven { url 'https://jitpack.io' }
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
 	implementation "blue.endless:jankson:$rootProject.jankson_version"
-	implementation "com.github.caplogic:mappedbus:$rootProject.mappedbus_version"
 	implementation "org.apache.logging.log4j:log4j-core:$rootProject.log4j_version"
 
 	compileOnly files(

@@ -2,7 +2,7 @@ package com.enderzombi102.mception.guest;
 
 import blue.endless.jankson.Jankson;
 import blue.endless.jankson.api.SyntaxError;
-import net.minecraft.client.crash.CrashInfo;
+import net.minecraft.class_776;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,18 +27,11 @@ public class Main {
 			fatalError("[Main] Failed to open pipe! Aborting...", e);
 		}
 
-		String playerName = "Player";
-		String uuid = "";
-
-		try {
-			LOGGER.info("[Main] Trying to get configuration data...");
-			System.setProperty("org.lwjgl.util.Debug", "true");
-			System.setProperty("org.lwjgl.librarypath", mainPipe.readString() );
-			playerName = mainPipe.readString();
-			uuid = mainPipe.readString();
-		} catch (NoMessage | IOException e) {
-			fatalError("[Main] Failed to get configuration data! Aborting...");
-		}
+		LOGGER.info("[Main] Getting configuration data...");
+		System.setProperty("org.lwjgl.util.Debug", "true");
+		System.setProperty("org.lwjgl.librarypath", System.getenv("lwjgl.dir") );
+		String playerName = System.getenv("mc.username");
+		String uuid = System.getenv("mc.uuid");
 
 		LOGGER.info("[Main] Starting game!");
 		client = MinecraftClient.main(playerName, uuid);
@@ -48,12 +41,12 @@ public class Main {
 				mainPipe.tick();
 				try {
 					Message msg = JANKSON.fromJson( mainPipe.readString(), Message.class );
-					if ( msg.needScreen ) {
-						Message newMsg = new Message();
-						newMsg.screen = client.getScreen();
-						send( JANKSON.toJson(newMsg).toJson() );
-					}
-					client.doInput(msg.input);
+					// send screen if asked to
+					if ( msg.needScreen )
+						send( JANKSON.toJson( new Message( client.getScreen() ) ).toJson() );
+					// if there's some input, execute it
+					if (msg.input != null)
+						client.doInput(msg.input);
 				} catch (IOException | SyntaxError e) {
 					sendError(e);
 				} catch (NoMessage ignored) { }
@@ -75,7 +68,7 @@ public class Main {
 		send( "{ error: \"" + e.toString() + "\" }" );
 	}
 
-	public static void sendCrash(CrashInfo crashInfo) {
+	public static void sendCrash(class_776 crashInfo) {
 	}
 
 	public static void fatalError(String msg, Throwable e) {

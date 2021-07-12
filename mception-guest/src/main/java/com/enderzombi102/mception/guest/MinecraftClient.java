@@ -1,8 +1,10 @@
 package com.enderzombi102.mception.guest;
 
-import net.minecraft.client.*;
-import net.minecraft.client.crash.CrashInfo;
-import net.minecraft.client.util.Session;
+import net.minecraft.class_46;
+import net.minecraft.class_49;
+import net.minecraft.class_776;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Minecraft$class_994;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -35,7 +37,7 @@ public class MinecraftClient extends Minecraft {
 	}
 
 	@Override
-	public void method_3285(CrashInfo crashInfo) {
+	public void method_3285(class_776 crashInfo) {
 		// on crash
 		Main.sendCrash(crashInfo);
 	}
@@ -66,10 +68,11 @@ public class MinecraftClient extends Minecraft {
 		mcClient.field_4186 = "www.minecraft.net";
 
 
+		// create session
 		if (playerName != null && uuid != null) {
-			mcClient.session = new Session(playerName, uuid);
+			mcClient.field_4185 = new class_49(playerName, uuid);
 		} else {
-			mcClient.session = new Session(
+			mcClient.field_4185 = new class_49(
 					"Player" + (System.currentTimeMillis() % 1000L),
 					""
 			);
@@ -92,11 +95,7 @@ public class MinecraftClient extends Minecraft {
 		Graphics2D g2d = img.createGraphics();
 		canvas.printAll(g2d);
 		g2d.dispose();
-		Screen screen =  new Screen();
-		screen.img = B64_ENCODER.encodeToString( ImageUtils.toByteArray(img) );
-		screen.width = canvas.getWidth();
-		screen.height = canvas.getHeight();
-		return screen;
+		return new Screen( B64_ENCODER.encodeToString( ImageUtils.toByteArray(img) ) );
 	}
 
 	public void doInput(Input input) {
@@ -106,12 +105,12 @@ public class MinecraftClient extends Minecraft {
 	public static void stopMinecraft() {
 		if (mcMainThread == null)
 			return;
-		mcClient.scheduleStop();
+		mcClient.method_3319(); // scheduleStop()
 		try {
 			mcMainThread.join(10000L);
 		} catch (InterruptedException interruptedException) {
 			try {
-				mcClient.stop();
+				mcClient.method_3315();  // stop()
 			} catch (Exception e) {
 				sendError(e);
 			}

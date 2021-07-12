@@ -4,12 +4,19 @@ import blue.endless.jankson.Jankson;
 import com.enderzombi102.mception.guest.Dataclasses.*;
 import net.fabricmc.loader.api.FabricLoader;
 
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.enderzombi102.mception.guest.McPipe;
+import net.minecraft.client.MinecraftClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.enderzombi102.mception.MCeption.LOGGER;
 import static com.enderzombi102.mception.guest.McPipe.Side;
@@ -18,7 +25,14 @@ import static com.enderzombi102.mception.guest.McPipe.Side;
 public class GuestRunner {
 
 	private static final Jankson JANKSON = new Jankson.Builder().allowBareRootObject().build();
+	private static final Logger GUEST_LOGGER = LogManager.getLogger("MCeptionGuest");
+	private static final HashMap<String, String> JAVA_INSTALLATIONS = new HashMap<>() {{
+		put("ENDERZOMBI102", "C:\\Program Files\\Java\\jdk1.8.0_231\\bin\\java.exe");
+		put("ErinRoseWebs", "");
+	}};
 	private Process mcProcess;
+	private BufferedReader mcOutput;
+	private BufferedReader mcError;
 	private McPipe mainPipe;
 	public boolean running = false;
 
@@ -33,13 +47,32 @@ public class GuestRunner {
 			return;
 		}
 		try {
-			LOGGER.info( "[GuestRunner] Strating process!" );
-			mcProcess = new ProcessBuilder()
+			var client = MinecraftClient.getInstance();
+			LOGGER.info( "[GuestRunner] Starting process!" );
+			// create builder and setup env variables
+			var builder = new ProcessBuilder()
 					.directory( MCeptionClient.MCEPTION_DIR.toFile() )
 					.command( getCommand() )
-					.start();
+					.redirectErrorStream(true);
+			builder.environment().putAll(
+					new HashMap<>() {{
+						put( "lwjgl.dir", BinInstaller.getBinary("lwjgl").getParent().toString() );
+						put( "mc.username", client.getSession().getUsername() );
+						put( "mc.uuid", client.getSession().getUuid() );
+					}}
+			);
+			// start process
+			mcProcess = builder.start();
+			mcProcess.onExit().thenAccept( process -> {
+				if ( mcProcess.exitValue() != 0 ) {
+					LOGGER.error("[GuestRunner] Process terminated with exit code " + mcProcess.exitValue() );
+					running = false;
+				}
+			} );
+			mcOutput = new BufferedReader( new InputStreamReader( mcProcess.getInputStream() ) );
+			mcError = new BufferedReader( new InputStreamReader( mcProcess.getErrorStream() ) );
 			running = true;
-		} catch (IOException e) {
+		} catch ( IOException e ) {
 			LOGGER.error( "[GuestRunner] Failed to start guest process!", e );
 		}
 	}
@@ -49,6 +82,17 @@ public class GuestRunner {
 	}
 
 	public void tick() {
+		String data;
+		try {
+			data = mcOutput.readLine();
+			if ( data != null )
+				GUEST_LOGGER.info( data );
+		} catch (IOException ignored) { }
+		try {
+			data = mcError.readLine();
+			if ( data != null )
+				GUEST_LOGGER.error( data );
+		} catch (IOException ignored) { }
 		mainPipe.tick();
 	}
 
@@ -73,16 +117,16 @@ public class GuestRunner {
 		}
 	}
 
-	private static ArrayList<String> getCommand() {
+	public static ArrayList<String> getCommand() {
 		ArrayList<String> cmd = new ArrayList<>();
-		cmd.add( System.getProperty("java.home") + "\\bin\\java.exe" );
-		cmd.add("-cp");
-		cmd.add( getClasspath() );
-		cmd.add("com.enderzombi102.mception.guest.Main");
+		cmd.add( JAVA_INSTALLATIONS.get( MinecraftClient.getInstance().getSession().getUsername() ) );
+		cmd.add( "-classpath" );
+		cmd.add( "\"" + getClasspath() + "\"" );
+		cmd.add( "com.enderzombi102.mception.guest.Main" );
 		return cmd;
 	}
 
-	@SuppressWarnings("StringConcatenationInLoop")
+	@SuppressWarnings("ConstantConditions")
 	private static String getClasspath() {
 		ArrayList<String> cp = new ArrayList<>();
 		cp.add("bin/client.jar");
@@ -92,17 +136,52 @@ public class GuestRunner {
 		cp.add("bin/lwjgl-util.jar");
 		cp.add("bin/");
 		cp.add("resources/");
-		if ( FabricLoader.getInstance().isDevelopmentEnvironment() ) {
-			cp.add( BinInstaller.class.getProtectionDomain().getCodeSource().getLocation().toString() );
-		} else {
-			cp.add( BinInstaller.class.getProtectionDomain().getCodeSource().getLocation().toString() );
+		try {
+			if ( FabricLoader.getInstance().isDevelopmentEnvironment() ) {
+				cp.add(
+						getLocation().toString()
+				);
+				cp.add(
+						getLocation().getParent().getParent().getParent().resolve("resources/main").toString()
+				);
+				cp.add(
+						getLocation().getParent().getParent().getParent().getParent()
+								.resolve("mception-guest/build/classes/java/main")
+								.toString()
+				);
+				cp.add(
+						getLocation().getParent().getParent().getParent().getParent()
+								.resolve("mception-guest/build/resources/main")
+								.toString()
+				);
+				// jankson
+				cp.add(
+						Path.of( Jankson.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).toString()
+				);
+				// logging
+				cp.add(
+						Path.of( Logger.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).toString()
+				);
+				cp.add(
+						Path.of(
+								org.apache.logging.log4j.core.Logger.class
+										.getProtectionDomain()
+										.getCodeSource()
+										.getLocation()
+										.toURI()
+						).toString()
+				);
+			} else {
+				cp.add(
+						Path.of(
+								BinInstaller.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+						).toString()
+				);
+			}
+		} catch (URISyntaxException e) {
+			LOGGER.error(e);
 		}
-
-		String classpath = "";
-		for (String cppart : cp ) {
-			classpath += ( cppart + ";" );
-		}
-		return classpath;
+		return join(cp, ";");
 	}
 
 	public void send(Message message) {
@@ -111,6 +190,44 @@ public class GuestRunner {
 			mainPipe.send( JANKSON.toJson(message).toJson() );
 		} catch (EOFException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("StringConcatenationInLoop")
+	public static String join(ArrayList<String> strings, String delimiter) {
+		String finalString = strings.get(0);
+		strings.remove(0);
+		for (String cppart : strings ) {
+			finalString += ( delimiter + cppart );
+		}
+		return finalString;
+	}
+
+	private static Path getLocation() {
+		try {
+			return Path.of(
+					GuestRunner.class
+							.getProtectionDomain()
+							.getCodeSource()
+							.getLocation()
+							.toURI()
+			);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
+	private static Path getLocation(Class<?> clazz) {
+		try {
+			return Path.of(
+					clazz
+							.getProtectionDomain()
+							.getCodeSource()
+							.getLocation()
+							.toURI()
+			);
+		} catch (URISyntaxException e) {
+			return null;
 		}
 	}
 }

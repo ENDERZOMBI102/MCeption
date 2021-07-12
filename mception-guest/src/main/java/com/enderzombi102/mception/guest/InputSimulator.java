@@ -8,20 +8,17 @@ import static com.enderzombi102.mception.guest.Dataclasses.Input;
 
 class InputSimulator {
 
-	private int lastKey;
-	private char lastChar;
-
 	public void doInput(Input input) {
 		// keyboard handling
-		if (lastKey != input.keyPressed) {
+		if (input.keyRelease != null) {
 			dispatch(
 					new KeyEvent(
 							MinecraftClient.frame,
 							KeyEvent.KEY_RELEASED,
 							System.currentTimeMillis(),
-							input.keyModifiers,
-							lastKey,
-							lastChar
+							input.keyRModifiers,
+							input.keyRelease,
+							(char) input.keyRelease.intValue()
 					)
 			);
 		}
@@ -31,13 +28,11 @@ class InputSimulator {
 							MinecraftClient.frame,
 							KeyEvent.KEY_PRESSED,
 							System.currentTimeMillis(),
-							input.keyModifiers,
+							input.keyPModifiers,
 							input.keyPressed,
 							(char) input.keyPressed.intValue()
 					)
 			);
-			lastKey = input.keyPressed;
-			lastChar = (char) input.keyPressed.intValue();
 		}
 		// mouse handling
 		if (input.moveMouseX != null || input.moveMouseY != null) {
@@ -61,8 +56,8 @@ class InputSimulator {
 							MouseEvent.MOUSE_CLICKED,
 							System.currentTimeMillis(),
 							0,
-							input.mouseX,
-							input.mouseY,
+							input.mouseX.intValue(),
+							input.mouseY.intValue(),
 							1,
 							false,
 							input.clickButton + 1
