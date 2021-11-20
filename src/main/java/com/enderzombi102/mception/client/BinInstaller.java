@@ -156,11 +156,8 @@ public class BinInstaller {
 	}
 
 	private static TinyTree getMappings() {
-		InputStream stream = BinInstaller.class.getResourceAsStream("/mappings.tiny");
-		Objects.requireNonNull(stream);
-		TinyTree tree;
-		try {
-			tree = MappingUtils.wrapTree(
+		try (InputStream stream = Objects.requireNonNull(BinInstaller.class.getResourceAsStream("/mappings.tiny"))) {
+			return MappingUtils.wrapTree(
 					TinyMappingFactory.loadWithDetection(
 						new BufferedReader(
 								new InputStreamReader( stream )
@@ -169,15 +166,8 @@ public class BinInstaller {
 			);
 		} catch (IOException e) {
 			LOGGER.error( "[MCeption] error while reading stream!", e );
-			tree = TinyMappingFactory.EMPTY_TREE;
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				LOGGER.error( "[MCeption] error while closing stream! WTF!", e );
-			}
+			return TinyMappingFactory.EMPTY_TREE;
 		}
-		return tree;
 	}
 
 
