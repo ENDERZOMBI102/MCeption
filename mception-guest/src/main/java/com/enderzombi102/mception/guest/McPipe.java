@@ -3,6 +3,7 @@ package com.enderzombi102.mception.guest;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -10,6 +11,10 @@ import static com.enderzombi102.mception.guest.Main.LOGGER;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class McPipe {
+	/*
+	 * Why am i using pipes?
+	 * I can just redirect the child's STDOUT and STDIN to my own needs
+	 */
 
 	private final ServerSocketChannel server = ServerSocketChannel.open();;
 	private final SocketChannel writer = SocketChannel.open();
@@ -24,7 +29,7 @@ public class McPipe {
 		if ( side == Side.Guest ) {
 			LOGGER.info("[McPipe] This is the guest side! connecting to host server...");
 			if (! writer.connect( new InetSocketAddress("127.0.0.1", 20306 ) ) )
-					writer.finishConnect();
+				writer.finishConnect();
 		}
 	}
 
@@ -47,20 +52,21 @@ public class McPipe {
 	}
 
 	public String readString() throws IOException, NoMessage {
-		return new String( read() );
+		return new String( read().array() );
 	}
 
-	public byte[] read() throws IOException, NoMessage {
-		byte[] data = new byte[] {};
+	public ByteBuffer read() throws IOException, NoMessage {
+		ByteBuffer data = ByteBuffer.wrap( new byte[] {} );
+		this.reader.read( data );
 		return data;
 	}
 
-	public void send(String data) throws EOFException {
+	public void send(String data) throws IOException {
 		send( data.getBytes() );
 	}
 
-	public void send(byte[] bytes) throws EOFException {
-
+	public void send(byte[] bytes) throws IOException {
+		this.writer.write( ByteBuffer.wrap( bytes ) );
 	}
 
 	public enum Side {

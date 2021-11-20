@@ -132,7 +132,7 @@ public class BinInstaller {
 		}
 
 		LOGGER.info("[MCeption] Remapping client.jar");
-		TinyRemapper remapper = net.fabricmc.tinyremapper.TinyRemapper.newRemapper()
+		TinyRemapper remapper = TinyRemapper.newRemapper()
 				.withMappings( MappingUtils.create( getMappings(), "client", "named" ) )
 				.rebuildSourceFilenames(true)
 				.build();

@@ -51,7 +51,7 @@ public class MCeption implements ModInitializer {
 	@Override
 	public void onInitialize() { }
 
-	public static Identifier ID(String path) {
+	public static Identifier getId(String path) {
 		return new Identifier("mception", path);
 	}
 }

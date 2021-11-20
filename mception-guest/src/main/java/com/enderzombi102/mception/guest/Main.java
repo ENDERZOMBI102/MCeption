@@ -6,7 +6,6 @@ import net.minecraft.class_776;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.EOFException;
 import java.io.IOException;
 
 import static com.enderzombi102.mception.guest.McPipe.Side;
@@ -59,7 +58,7 @@ public class Main {
 	public static void send(String text) {
 		try {
 			mainPipe.send(text);
-		} catch (EOFException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

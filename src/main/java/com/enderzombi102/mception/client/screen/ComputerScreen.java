@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static com.enderzombi102.mception.MCeption.ID;
+import static com.enderzombi102.mception.MCeption.getId;
 import static com.enderzombi102.mception.guest.Dataclasses.Input;
 import static com.enderzombi102.mception.guest.Dataclasses.Message;
 import static com.enderzombi102.mception.MCeption.LOGGER;
@@ -32,7 +32,7 @@ public class ComputerScreen extends Screen {
 				HEIGHT,
 				true
 		);
-		MinecraftClient.getInstance().getTextureManager().registerTexture( ID("minecraft_screen"), TEXTURE );
+		MinecraftClient.getInstance().getTextureManager().registerTexture( getId("minecraft_screen"), TEXTURE );
 
 		try {
 			//noinspection ConstantConditions
@@ -97,7 +97,7 @@ public class ComputerScreen extends Screen {
 	@Override
 	protected void init() {
 		super.init();
-		LOGGER.info( GuestRunner.join(GuestRunner.getCommand(), " " ) );
+		LOGGER.info( GuestRunner.join( GuestRunner.getCommand(), " " ) );
 		if (! RUNNER.running ) {
 			RUNNER.run();
 		}

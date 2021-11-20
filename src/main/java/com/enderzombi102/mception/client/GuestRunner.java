@@ -28,7 +28,6 @@ public class GuestRunner {
 	private static final Logger GUEST_LOGGER = LogManager.getLogger("MCeptionGuest");
 	private static final HashMap<String, String> JAVA_INSTALLATIONS = new HashMap<>() {{
 		put("ENDERZOMBI102", "C:\\Program Files\\Java\\jdk1.8.0_231\\bin\\java.exe");
-		put("ErinRoseWebs", "");
 	}};
 	private Process mcProcess;
 	private BufferedReader mcOutput;
@@ -37,7 +36,9 @@ public class GuestRunner {
 	public boolean running = false;
 
 	// this successfully runs mc
-	// java -cp client.jar;jinput.jar;jutils.jar;lwjgl.jar;lwjgl-util.jar;../resources net.minecraft.client.Minecraft
+	// | work dir | command |
+	// | MCeption/bin | java -cp client.jar;jinput.jar;jutils.jar;lwjgl.jar;lwjgl-util.jar;../resources net.minecraft.client.Minecraft
+	// | MCeption | java -Djava.library.path=bin -cp bin/client.jar;bin/jinput.jar;bin/jutils.jar;bin/lwjgl.jar;bin/lwjgl-util.jar;resources net.minecraft.client.Minecraft
 	public void run() {
 		try {
 			LOGGER.info( "[GuestRunner] Creating pipe!" );
@@ -188,7 +189,7 @@ public class GuestRunner {
 		if (! running ) return;
 		try {
 			mainPipe.send( JANKSON.toJson(message).toJson() );
-		} catch (EOFException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

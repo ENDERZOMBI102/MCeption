@@ -72,8 +72,8 @@ public class Download {
 			sha1.update(this.buf);
 			if (! new String( Hex.encodeHex( sha1.digest() ) ).equals(expectedSha1) )
 				return false;
-		} catch ( NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+		} catch ( NoSuchAlgorithmException e ) {
+			throw new IllegalStateException( "Why is SHA1 missing?", e );
 		}
 		return true;
 	}
