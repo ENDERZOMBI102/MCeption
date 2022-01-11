@@ -25,12 +25,12 @@ public class MCeption implements ModInitializer {
 	static {
 		COMPUTER_BLOCK = Registry.register(
 				Registry.BLOCK,
-				ID("computer_block"),
+				getId("computer_block"),
 				new ComputerBlock()
 		);
 		Registry.register(
 				Registry.ITEM,
-				ID("computer_block"),
+				getId("computer_block"),
 				new BlockItem(
 						COMPUTER_BLOCK,
 						new FabricItemSettings()
@@ -40,7 +40,7 @@ public class MCeption implements ModInitializer {
 		);
 		COMPUTER_BLOCK_ENTITY_TYPE = Registry.register(
 				Registry.BLOCK_ENTITY_TYPE,
-				ID("computer_block"),
+				getId("computer_block"),
 				FabricBlockEntityTypeBuilder.create(
 						ComputerBlockEntity::new,
 						COMPUTER_BLOCK

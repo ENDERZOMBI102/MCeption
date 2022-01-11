@@ -1,6 +1,5 @@
 package com.enderzombi102.mception.client;
 
-import net.fabricmc.loader.util.mappings.TinyRemapperMappingsHelper;
 import net.fabricmc.mapping.tree.TinyMappingFactory;
 import net.fabricmc.mapping.tree.TinyTree;
 import net.fabricmc.tinyremapper.OutputConsumerPath;

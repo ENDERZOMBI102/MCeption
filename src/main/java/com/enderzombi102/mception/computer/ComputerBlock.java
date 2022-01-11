@@ -45,7 +45,7 @@ public class ComputerBlock extends HorizontalFacingBlock implements BlockEntityP
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (world.isClient) {
-			MinecraftClient.getInstance().openScreen( new ComputerScreen() );
+			MinecraftClient.getInstance().setScreen( new ComputerScreen() );
 		}
 		return ActionResult.SUCCESS;
 	}
