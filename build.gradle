@@ -1,7 +1,18 @@
+import java.nio.ByteBuffer
+import java.nio.file.Files
+import java.nio.file.Path
+
+buildscript {
+	dependencies {
+		classpath 'net.fabricmc:tiny-remapper:0.6.0'
+	}
+}
+
 plugins {
 	id 'com.github.johnrengelman.shadow' version '7.0.0'
 	id 'fabric-loom' version '0.9-SNAPSHOT'
 }
+apply from: 'remap.gradle'
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -25,7 +36,7 @@ repositories {
 }
 
 dependencies {
-	//to change the versions see the gradle.properties file
+	// to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:$minecraft_version"
 	mappings "net.fabricmc:yarn:$yarn_mappings:v2"
 	modImplementation( "net.fabricmc:fabric-loader:$loader_version" )
@@ -66,4 +77,36 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from 'LICENSE'
+}
+
+/**
+* Basically a copy of <@link com.enderzombi102.mception.client.BinInstaller>
+*/
+task downloadMinecraftDeps {
+	// actual gradle task
+	doLast {
+		def libsDir = Path.of( project.getChildProjects().get('mception-guest').getProjectDir().toString(), 'libs' )
+		// create main file dir
+		Files.createDirectories( libsDir )
+		// install minecraft 1.2.5
+		installIfNotPresent(
+				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
+				libsDir.resolve("client-obf.jar")
+		)
+		// remap minecraft 1.2.5
+		remapClient( libsDir, projectDir.toPath().resolve("src/main/resources/mappings.tiny") )
+	}
+}
+
+/**
+ * Downloads a file from an url and saves it to the specified path
+ * @param url url to downlaod
+ * @param path path to save the file to
+ */
+static void installIfNotPresent(String url, Path path ) {
+	//noinspection GroovyAssignabilityCheck
+	System.out.println( "Downloading $url to $path" )
+	def buf = ByteBuffer.wrap( URI.create( url ).toURL().openStream().readAllBytes() )
+	path.getParent().toFile().mkdirs()
+	Files.write( path, buf.array() )
 }

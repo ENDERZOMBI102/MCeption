@@ -1,0 +1,261 @@
+import com.google.common.base.Strings
+import com.google.common.collect.Collections2
+import com.google.common.collect.Maps
+import net.fabricmc.mapping.reader.v2.TinyMetadata
+import net.fabricmc.mapping.tree.ClassDef
+import net.fabricmc.mapping.tree.FieldDef
+import net.fabricmc.mapping.tree.LocalVariableDef
+import net.fabricmc.mapping.tree.Mapped
+import net.fabricmc.mapping.tree.MethodDef
+import net.fabricmc.mapping.tree.ParameterDef
+import net.fabricmc.tinyremapper.IMappingProvider
+import org.objectweb.asm.Type
+
+import java.nio.file.Files
+import java.nio.file.Path
+
+import net.fabricmc.mapping.tree.TinyMappingFactory
+import net.fabricmc.mapping.tree.TinyTree
+import net.fabricmc.tinyremapper.OutputConsumerPath
+import net.fabricmc.tinyremapper.TinyRemapper
+
+@SuppressWarnings('unused')
+static void remapClient( Path libsDir, Path mappingsPath ) {
+	def clientFile = libsDir.resolve("client").toFile()
+	if (clientFile.exists())
+		clientFile.delete()
+
+	System.out.println("[MCeptionRemapper] Remapping client.jar")
+	TinyRemapper remapper = TinyRemapper.newRemapper()
+			.withMappings( create( getMappings( mappingsPath ), "client", "named") )
+			.rebuildSourceFilenames(true)
+			.build()
+	try (
+			OutputConsumerPath outConsumer = (
+				new OutputConsumerPath.Builder( libsDir.resolve("client.jar") )
+			)
+				.filter(cls -> !cls.startsWith("org/apache/logging/log4j/"))
+				.build()
+	) {
+		// try to remap
+		remapper.readInputs( libsDir.resolve("client-obf.jar") )
+		remapper.apply(outConsumer)
+
+	} catch (IOException e) {
+		// an error occurred
+		e.printStackTrace()
+	} finally {
+		// finish the remapping process
+		remapper.finish()
+	}
+}
+
+private static TinyTree getMappings(Path mappingFile) {
+	try ( Reader reader = Files.newBufferedReader( mappingFile ) ) {
+		return wrapTree(
+			TinyMappingFactory.loadWithDetection( reader )
+		)
+	} catch (IOException e) {
+		System.err.println( "[MCeptionRemapper] error while reading stream!" )
+		e.printStackTrace()
+
+		return TinyMappingFactory.EMPTY_TREE
+	}
+}
+
+private static TinyTree wrapTree(TinyTree mappings) {
+	return new TinyTree() {
+		final String primaryNamespace = getMetadata().getNamespaces().get(0)
+		//If the namespaces are empty we shouldn't exist
+
+		private java.util.Optional<String> remap(String name, String namespace) {
+			return java.util.Optional.ofNullable(getDefaultNamespaceClassMap().get(name)).map(mapping -> Strings.emptyToNull(mapping.getRawName(namespace)))
+		}
+
+		String remapDesc(String desc, String namespace) {
+			Type type = Type.getType(desc)
+
+			switch (type.getSort()) {
+				case Type.ARRAY: {
+					StringBuilder remappedDescriptor = new StringBuilder(desc.substring(0, type.getDimensions()))
+
+					remappedDescriptor.append(remapDesc(type.getElementType().getDescriptor(), namespace))
+
+					return remappedDescriptor.toString()
+				}
+
+				case Type.OBJECT:
+					return remap(type.getInternalName(), namespace).map(name -> 'L' + name + '').orElse(desc)
+
+				case Type.METHOD: {
+					if ( "()V" == desc ) return desc
+
+					StringBuilder stringBuilder = new StringBuilder("(")
+					for (Type argumentType : type.getArgumentTypes()) {
+						stringBuilder.append(remapDesc(argumentType.getDescriptor(), namespace))
+					}
+
+					Type returnType = type.getReturnType()
+					if (returnType == Type.VOID_TYPE) {
+						stringBuilder.append(")V")
+					} else {
+						stringBuilder.append(')').append(remapDesc(returnType.getDescriptor(), namespace))
+					}
+
+					return stringBuilder.toString()
+				}
+
+				default:
+					return desc
+			}
+		}
+
+		private ClassDef wrap(ClassDef mapping) {
+			return new ClassDef() {
+				private final boolean common = getMetadata()
+						.getNamespaces()
+						.stream()
+						.skip(1)
+						.map(this::getRawName)
+						.allMatch(Strings::isNullOrEmpty)
+
+				@Override
+				String getRawName(String namespace) {
+					try {
+						return mapping.getRawName(common ? primaryNamespace : namespace)
+					} catch ( ArrayIndexOutOfBoundsException ignored ) {
+						return "" //No name for the namespace
+					}
+				}
+
+				@Override
+				String getName(String namespace) {
+					return mapping.getName(namespace)
+				}
+
+				@Override
+				String getComment() {
+					return mapping.getComment()
+				}
+
+				@Override
+				Collection<MethodDef> getMethods() {
+					//noinspection GroovyAssignabilityCheck
+					return Collections2.transform(mapping.getMethods(), method -> new MethodDef() {
+						@Override
+						String getRawName(String namespace) {
+							try {
+								return method.getRawName(namespace)
+							} catch (ArrayIndexOutOfBoundsException ignored) {
+								return "" // No name for the namespace
+							}
+						}
+
+						@Override
+						String getName(String namespace) {
+							return method.getName(namespace)
+						}
+
+						@Override
+						String getComment() {
+							return method.getComment()
+						}
+
+						@Override
+						String getDescriptor(String namespace) {
+							String desc = method.getDescriptor(primaryNamespace)
+							return primaryNamespace == namespace ? desc : remapDesc(desc, namespace)
+						}
+
+						@Override
+						Collection<ParameterDef> getParameters() {
+							return method.getParameters()
+						}
+
+						@Override
+						Collection<LocalVariableDef> getLocalVariables() {
+							return method.getLocalVariables()
+						}
+					})
+				}
+
+				@Override
+				Collection<FieldDef> getFields() {
+					//noinspection GroovyAssignabilityCheck
+					return Collections2.transform(mapping.getFields(), field -> new FieldDef() {
+						@Override
+						String getRawName(String namespace) {
+							try {
+								return field.getRawName(namespace)
+							} catch (ArrayIndexOutOfBoundsException ignored) {
+								return "" //No name for the namespace
+							}
+						}
+
+						@Override
+						String getName(String namespace) {
+							return field.getName(namespace)
+						}
+
+						@Override
+						String getComment() {
+							return field.getComment()
+						}
+
+						@Override
+						String getDescriptor(String namespace) {
+							String desc = field.getDescriptor(primaryNamespace)
+							return primaryNamespace == namespace ? desc : remapDesc(desc, namespace)
+						}
+					})
+				}
+			}
+		}
+
+		@Override
+		TinyMetadata getMetadata() {
+			return mappings.getMetadata()
+		}
+
+		@Override
+		Map<String, ClassDef> getDefaultNamespaceClassMap() {
+			return Maps.transformValues(mappings.getDefaultNamespaceClassMap(), this::wrap)
+		}
+
+		@Override
+		Collection<ClassDef> getClasses() {
+			return Collections2.transform(mappings.getClasses(), this::wrap)
+		}
+	}
+}
+
+private static IMappingProvider.Member memberOf(String className, String memberName, String descriptor) {
+	return new IMappingProvider.Member(className, memberName, descriptor)
+}
+
+private static String tryName(Mapped mapping, String namespace, String fallback) {
+	String name = mapping.getRawName(namespace)
+	return !Strings.isNullOrEmpty(name) ? name : fallback
+}
+
+private static IMappingProvider create(TinyTree mappings, String from, String to) {
+	return (acceptor) -> {
+		for (ClassDef classDef : mappings.getClasses()) {
+			String className = classDef.getRawName(from)
+			if (Strings.isNullOrEmpty(className)) continue //Class not present
+			acceptor.acceptClass(className, tryName(classDef, to, className))
+
+			for (FieldDef field : classDef.getFields()) {
+				String fieldName = field.getRawName(from)
+				if (Strings.isNullOrEmpty(fieldName)) continue //Field not present
+				acceptor.acceptField(memberOf(className, fieldName, field.getDescriptor(from)), tryName(field, to, fieldName))
+			}
+
+			for (MethodDef method : classDef.getMethods()) {
+				String methodName = method.getRawName(from)
+				if (Strings.isNullOrEmpty(methodName)) continue //Method not present
+				acceptor.acceptMethod(memberOf(className, methodName, method.getDescriptor(from)), tryName(method, to, methodName))
+			}
+		}
+	}
+}

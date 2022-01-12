@@ -1,0 +1,10 @@
+def os = System.getProperty('os.name')
+boolean isWindows() {
+	return os.contains('windows')
+}
+boolean isOsx() {
+	return os.contains('osx') || os.contains('mac') || os.contains('darwin')
+}
+boolean isLinux() {
+	return os.contains('nux')
+}
