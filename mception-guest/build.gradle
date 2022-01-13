@@ -15,8 +15,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-	implementation "blue.endless:jankson:$rootProject.jankson_version"
-	implementation "org.apache.logging.log4j:log4j-core:$rootProject.log4j_version"
+	compileOnly "blue.endless:jankson:$rootProject.jankson_version"
+	compileOnly "org.apache.logging.log4j:log4j-core:$rootProject.log4j_version"
 
 	compileOnly 'net.java.jinput:jinput:2.0.5'
 	compileOnly 'net.java.jutils:jutils:1.0.0'
@@ -24,13 +24,6 @@ dependencies {
 	compileOnly 'org.lwjgl.lwjgl:lwjgl_util:2.9.0'
 
 	compileOnly files(
-			'libs/client.jar',
-			'libs/jutils.jar',
-			'libs/lwjgl.jar',
-			'libs/lwjgl-util.jar'
+		'libs/client.jar'
 	)
-}
-
-task DecompileMinecraft {
-
 }
