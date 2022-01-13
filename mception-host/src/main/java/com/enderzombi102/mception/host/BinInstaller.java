@@ -33,32 +33,32 @@ public class BinInstaller implements Installer {
 		Files.createDirectories(binDir);
 		if (! clientOnly ) {
 			// install jinput
-			installIfNotPresent( getJinput(), binDir.resolve("jinput-natives.jar"), true );
+			downloadIfNotPresent( getJinput(), binDir.resolve("jinput-natives.jar"), true );
 			Files.deleteIfExists( binDir.resolve("jinput-natives.jar") );
-			installIfNotPresent(
+			downloadIfNotPresent(
 					"https://libraries.minecraft.net/net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar",
 					getBinary("jinput")
 			);
 			// install jutils
-			installIfNotPresent(
+			downloadIfNotPresent(
 					"https://libraries.minecraft.net/net/java/jutils/jutils/1.0.0/jutils-1.0.0.jar",
 					getBinary("jutils")
 			);
 			// install lwjgl
-			installIfNotPresent(getLwjgl(), binDir.resolve("lwjgl-natives.jar"), true);
+			downloadIfNotPresent(getLwjgl(), binDir.resolve("lwjgl-natives.jar"), true);
 			Files.deleteIfExists( binDir.resolve("lwjgl-natives.jar") );
-			installIfNotPresent(
+			downloadIfNotPresent(
 					"https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl/2.9.0/lwjgl-2.9.0.jar",
 					getBinary("lwjgl")
 			);
 			// install lwjgl-util
-			installIfNotPresent(
+			downloadIfNotPresent(
 					"https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl_util/2.9.0/lwjgl_util-2.9.0.jar",
 					getBinary("lwjgl-util")
 			);
 		}
 		// install minecraft 1.2.5
-		installIfNotPresent(
+		downloadIfNotPresent(
 				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
 				getBinary("client-obf")
 		);
@@ -90,11 +90,11 @@ public class BinInstaller implements Installer {
 		throw new IllegalStateException("OS NOT SUPPORTED! how are you running this?");
 	}
 
-	private void installIfNotPresent( String url, Path path ) throws IOException {
-		installIfNotPresent(url, path, false);
+	private void downloadIfNotPresent(String url, Path path ) throws IOException {
+		downloadIfNotPresent(url, path, false);
 	}
 
-	private void installIfNotPresent( String url, Path path, boolean unzip ) throws IOException {
+	private void downloadIfNotPresent(String url, Path path, boolean unzip ) throws IOException {
 		if (! path.toFile().exists() ) {
 			LOGGER.info( path.toFile().getName() + " doesn't exists, downloading it." );
 			new Download(url).downloadTo(path);
