@@ -33,7 +33,8 @@ public class BinInstaller implements Installer {
 		Files.createDirectories(binDir);
 		if (! clientOnly ) {
 			// install jinput
-			installIfNotPresent(getJinput(), binDir.resolve("jinput-natives.jar"), true);
+			installIfNotPresent( getJinput(), binDir.resolve("jinput-natives.jar"), true );
+			Files.deleteIfExists( binDir.resolve("jinput-natives.jar") );
 			installIfNotPresent(
 					"https://libraries.minecraft.net/net/java/jinput/jinput/2.0.5/jinput-2.0.5.jar",
 					getBinary("jinput")
@@ -45,6 +46,7 @@ public class BinInstaller implements Installer {
 			);
 			// install lwjgl
 			installIfNotPresent(getLwjgl(), binDir.resolve("lwjgl-natives.jar"), true);
+			Files.deleteIfExists( binDir.resolve("lwjgl-natives.jar") );
 			installIfNotPresent(
 					"https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl/2.9.0/lwjgl-2.9.0.jar",
 					getBinary("lwjgl")
@@ -64,8 +66,8 @@ public class BinInstaller implements Installer {
 			remapClient();
 //		extractJar();
 		// remove meta inf
-		Files.deleteIfExists( binDir.resolve("META-INF").resolve("MANIFEST.MF") );
-		Files.deleteIfExists( binDir.resolve("META-INF") );
+//		Files.deleteIfExists( binDir.resolve("META-INF").resolve("MANIFEST.MF") );
+//		Files.deleteIfExists( binDir.resolve("META-INF") );
 	}
 
 	private static String getJinput() {

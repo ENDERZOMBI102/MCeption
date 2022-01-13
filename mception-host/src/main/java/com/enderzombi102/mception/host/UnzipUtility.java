@@ -42,14 +42,17 @@ public class UnzipUtility {
 		if (! destDir.exists() ) {
 			destDir.mkdir();
 		}
-		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+		ZipInputStream zipIn = new ZipInputStream( new FileInputStream(zipFilePath) );
 		ZipEntry entry = zipIn.getNextEntry();
 		// iterates over entries in the zip file
 		while ( entry != null ) {
 			String filePath = destDirectory + File.separator + entry.getName();
-			if (! entry.isDirectory() ) {
+			//noinspection StatementWithEmptyBody
+			if ( entry.getName().contains("META-INF") ) {
+
+			} else if (! entry.isDirectory() ) {
 				// if the entry is a file, extracts it
-				extractFile(zipIn, filePath);
+				extractFile( zipIn, filePath );
 			} else {
 				// if the entry is a directory, make the directory
 				new File(filePath).mkdirs();
