@@ -1,4 +1,4 @@
-package com.enderzombi102.mception.client;
+package com.enderzombi102.mception.host;
 
 import org.apache.commons.codec.binary.Hex;
 import org.jetbrains.annotations.NotNull;
@@ -84,8 +84,9 @@ public class Download {
 		return this;
 	}
 
-	public Download checkOrRetry(String expectedSha1, int expectedSize) throws URISyntaxException, MalformedURLException {
-		if ( checkSha1(expectedSha1) && checkSize(expectedSize) ) return this;
+	public Download checkOrRetry( String expectedSha1, int expectedSize ) throws URISyntaxException, MalformedURLException {
+		if ( checkSha1(expectedSha1) && checkSize(expectedSize) )
+			return this;
 		// check failed, redo download
 		return new Download( this.downloadUrl.toURI() );
 	}

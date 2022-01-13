@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
+	<Appenders>
+		<Console name="stdout" target="">
+			<PatternLayout pattern="%highlight{[%level{length=1}] %C{1}.%M: %msg%n%throwable}{ERROR=red, INFO=Bright Cyan, DEBUG=Bright Black, TRACE=white}" disableAnsi="false"/>
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Root level="ALL">
+			<AppenderRef ref="stdout"/>
+		</Root>
+	</Loggers>
+</Configuration>

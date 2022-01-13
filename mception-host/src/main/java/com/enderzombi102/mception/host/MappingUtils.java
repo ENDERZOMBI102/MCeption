@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enderzombi102.mception.client;
+package com.enderzombi102.mception.host;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +39,8 @@ public class MappingUtils {
 			final String primaryNamespace = getMetadata().getNamespaces().get(0); //If the namespaces are empty we shouldn't exist
 
 			private Optional<String> remap(String name, String namespace) {
-				return Optional.ofNullable(getDefaultNamespaceClassMap().get(name)).map(mapping -> Strings.emptyToNull(mapping.getRawName(namespace)));
+				return Optional.ofNullable( getDefaultNamespaceClassMap().get(name) )
+						.map( mapping -> Strings.emptyToNull( mapping.getRawName(namespace) ) );
 			}
 
 			String remapDesc(String desc, String namespace) {
@@ -44,11 +48,7 @@ public class MappingUtils {
 
 				switch (type.getSort()) {
 					case Type.ARRAY: {
-						StringBuilder remappedDescriptor = new StringBuilder(desc.substring(0, type.getDimensions()));
-
-						remappedDescriptor.append(remapDesc(type.getElementType().getDescriptor(), namespace));
-
-						return remappedDescriptor.toString();
+						return desc.substring( 0, type.getDimensions() ) + remapDesc( type.getElementType().getDescriptor(), namespace );
 					}
 
 					case Type.OBJECT:
@@ -66,7 +66,7 @@ public class MappingUtils {
 						if (returnType == Type.VOID_TYPE) {
 							stringBuilder.append(")V");
 						} else {
-							stringBuilder.append(')').append(remapDesc(returnType.getDescriptor(), namespace));
+							stringBuilder.append(')').append( remapDesc( returnType.getDescriptor(), namespace ) );
 						}
 
 						return stringBuilder.toString();
@@ -84,7 +84,7 @@ public class MappingUtils {
 					@Override
 					public String getRawName(String namespace) {
 						try {
-							return mapping.getRawName(common ? primaryNamespace : namespace);
+							return mapping.getRawName( common ? primaryNamespace : namespace );
 						} catch (ArrayIndexOutOfBoundsException e) {
 							return ""; //No name for the namespace
 						}
