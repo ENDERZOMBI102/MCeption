@@ -9,4 +9,5 @@ pluginManagement {
 }
 
 include 'mception-guest'
+include 'mception-host'
 
