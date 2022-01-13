@@ -21,7 +21,6 @@ public class MCeptionClient implements ClientModInitializer {
 	public static boolean installationSucceeded = false;
 	public static GuestRunner runner = new GuestRunner();
 
-
 	@Override
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void onInitializeClient() {

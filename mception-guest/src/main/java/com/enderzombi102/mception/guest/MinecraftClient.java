@@ -1,6 +1,5 @@
 package com.enderzombi102.mception.guest;
 
-import net.minecraft.class_46;
 import net.minecraft.class_49;
 import net.minecraft.class_776;
 import net.minecraft.client.Minecraft;
@@ -39,7 +38,7 @@ public class MinecraftClient extends Minecraft {
 	@Override
 	public void method_3285(class_776 crashInfo) {
 		// on crash
-		Main.sendCrash(crashInfo);
+		Main.sendCrash( crashInfo.field_2802, crashInfo.field_2803 );
 	}
 
 	public static MinecraftClient main(String playerName, String uuid) {
@@ -103,15 +102,15 @@ public class MinecraftClient extends Minecraft {
 	}
 
 	public static void stopMinecraft() {
-		if (mcMainThread == null)
+		if ( mcMainThread == null )
 			return;
 		mcClient.method_3319(); // scheduleStop()
 		try {
 			mcMainThread.join(10000L);
-		} catch (InterruptedException interruptedException) {
+		} catch ( InterruptedException interruptedException ) {
 			try {
 				mcClient.method_3315();  // stop()
-			} catch (Exception e) {
+			} catch ( Exception e ) {
 				sendError(e);
 			}
 		}

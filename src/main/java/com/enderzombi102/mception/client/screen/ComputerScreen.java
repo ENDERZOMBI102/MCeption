@@ -1,7 +1,9 @@
 package com.enderzombi102.mception.client.screen;
 
 import com.enderzombi102.mception.client.GuestRunner;
+import com.enderzombi102.mception.error.LibraryNotFoundError;
 import com.enderzombi102.mception.guest.ImageUtils;
+import com.enderzombi102.mception.host.Utilities;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.texture.NativeImage;
@@ -97,7 +99,11 @@ public class ComputerScreen extends Screen {
 	@Override
 	protected void init() {
 		super.init();
-		LOGGER.info( GuestRunner.join( GuestRunner.getCommand(), " " ) );
+
+		try {
+			LOGGER.info( Utilities.join( GuestRunner.getCommand(), " " ) );
+		} catch ( LibraryNotFoundError | ClassNotFoundException ignored ) { }
+
 		if (! RUNNER.running ) {
 			RUNNER.run();
 		}

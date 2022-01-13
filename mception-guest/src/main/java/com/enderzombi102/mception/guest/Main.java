@@ -2,7 +2,6 @@ package com.enderzombi102.mception.guest;
 
 import blue.endless.jankson.Jankson;
 import blue.endless.jankson.api.SyntaxError;
-import net.minecraft.class_776;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +47,7 @@ public class Main {
 						client.doInput(msg.input);
 				} catch (IOException | SyntaxError e) {
 					sendError(e);
-				} catch (NoMessage ignored) { }
+				} catch (NoMessageException ignored) { }
 			}
 		} );
 		LOGGER.info("[Main] Sending start confirmation!");
@@ -67,7 +66,7 @@ public class Main {
 		send( "{ error: \"" + e.toString() + "\" }" );
 	}
 
-	public static void sendCrash(class_776 crashInfo) {
+	public static void sendCrash( String message, Throwable exception ) {
 	}
 
 	public static void fatalError(String msg, Throwable e) {

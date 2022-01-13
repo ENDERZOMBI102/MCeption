@@ -1,36 +1,32 @@
 package com.enderzombi102.mception.client;
 
-import blue.endless.jankson.Jankson;
-import com.enderzombi102.mception.guest.Dataclasses.*;
-import com.enderzombi102.mception.host.BinInstaller;
-import net.fabricmc.loader.api.FabricLoader;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import com.enderzombi102.mception.error.LibraryNotFoundError;
+import com.enderzombi102.mception.guest.Dataclasses.Message;
 import com.enderzombi102.mception.guest.McPipe;
+import com.enderzombi102.mception.host.Utilities;
+import com.google.gson.Gson;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+
 import static com.enderzombi102.mception.MCeption.LOGGER;
 import static com.enderzombi102.mception.client.MCeptionClient.BIN_INSTALLER;
+import static com.enderzombi102.mception.client.MCeptionClient.MCEPTION_DIR;
 import static com.enderzombi102.mception.guest.McPipe.Side;
 
 @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "unused", "OptionalGetWithoutIsPresent"})
 public class GuestRunner {
 
-	private static final Jankson JANKSON = new Jankson.Builder().allowBareRootObject().build();
+	private static final Gson GSON = new Gson();
 	private static final Logger GUEST_LOGGER = LogManager.getLogger("MCeptionGuest");
-	// FIXME: This is an hack and should be replaced by localizing the java 8 install
-	private static final HashMap<String, String> JAVA_INSTALLATIONS = new HashMap<>() {{
-		put( "ENDERZOMBI102", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.312.7-hotspot\\bin\\java.exe" );
-	}};
 	private Process mcProcess;
 	private BufferedReader mcOutput;
 	private BufferedReader mcError;
@@ -52,11 +48,12 @@ public class GuestRunner {
 		try {
 			var client = MinecraftClient.getInstance();
 			LOGGER.info( "[GuestRunner] Starting process!" );
-			// create builder and setup env variables
+			// create builder
 			var builder = new ProcessBuilder()
 					.directory( MCeptionClient.MCEPTION_DIR.toFile() )
 					.command( getCommand() )
 					.redirectErrorStream(true);
+			// set env vars
 			builder.environment().putAll(
 					new HashMap<>() {{
 						put( "lwjgl.dir", BIN_INSTALLER.getBinary("lwjgl").getParent().toString() );
@@ -75,7 +72,7 @@ public class GuestRunner {
 			mcOutput = new BufferedReader( new InputStreamReader( mcProcess.getInputStream() ) );
 			mcError = new BufferedReader( new InputStreamReader( mcProcess.getErrorStream() ) );
 			running = true;
-		} catch ( IOException e ) {
+		} catch ( IOException | LibraryNotFoundError | ClassNotFoundException e ) {
 			LOGGER.error( "[GuestRunner] Failed to start guest process!", e );
 		}
 	}
@@ -107,130 +104,45 @@ public class GuestRunner {
 		return mcProcess;
 	}
 
-	private static String getModPath() {
+	/**
+	 * Sends a message to the guest process
+	 */
+	public void send(Message message) {
+		if (! running ) return;
+		try {
+			mainPipe.send( GSON.toJson(message) );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 *
+	 */
+	public static List<String> getCommand() throws LibraryNotFoundError, ClassNotFoundException {
+		// devenv?
+		final boolean devenv = FabricLoader.getInstance().isDevelopmentEnvironment();
+		return Utilities.getCommand(
+				MCEPTION_DIR,
+				devenv ? getClassesPath() : null,
+				devenv ? FabricLoader.getInstance().getModContainer("mception").get().getRootPath().toAbsolutePath() : null
+		);
+	}
+
+	/**
+	 * Returns the path of the classes in the jar, counts the dev env
+	 */
+	private static Path getClassesPath() {
 		Path path = FabricLoader.getInstance()
 				.getModContainer("mception")
 				.get()
 				.getRootPath()
 				.toAbsolutePath();
 		if ( FabricLoader.getInstance().isDevelopmentEnvironment() ) {
-			return path.getParent().getParent().resolve("classes").resolve("java").resolve("main").toString();
+			return path.getParent().getParent().resolve("classes").resolve("java").resolve("main");
 		} else {
-			return path.toString();
+			return path;
 		}
 	}
 
-	public static ArrayList<String> getCommand() {
-		ArrayList<String> cmd = new ArrayList<>();
-		cmd.add( JAVA_INSTALLATIONS.get( MinecraftClient.getInstance().getSession().getUsername() ) );
-		cmd.add( "-classpath" );
-		cmd.add( "\"" + getClasspath() + "\"" );
-		cmd.add( "com.enderzombi102.mception.guest.Main" );
-		return cmd;
-	}
-
-	@SuppressWarnings("ConstantConditions")
-	private static String getClasspath() {
-		ArrayList<String> cp = new ArrayList<>();
-		cp.add("bin/client.jar");
-		cp.add("bin/jinput.jar");
-		cp.add("bin/jutils.jar");
-		cp.add("bin/lwjgl.jar");
-		cp.add("bin/lwjgl-util.jar");
-		cp.add("bin/");
-		cp.add("resources/");
-		try {
-			if ( FabricLoader.getInstance().isDevelopmentEnvironment() ) {
-				cp.add(
-						getLocation().toString()
-				);
-				cp.add(
-						getLocation().getParent().getParent().getParent().resolve("resources/main").toString()
-				);
-				cp.add(
-						getLocation().getParent().getParent().getParent().getParent()
-								.resolve("mception-guest/build/classes/java/main")
-								.toString()
-				);
-				cp.add(
-						getLocation().getParent().getParent().getParent().getParent()
-								.resolve("mception-guest/build/resources/main")
-								.toString()
-				);
-				// jankson
-				cp.add(
-						Path.of( Jankson.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).toString()
-				);
-				// logging
-				cp.add(
-						Path.of( Logger.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).toString()
-				);
-				cp.add(
-						Path.of(
-								org.apache.logging.log4j.core.Logger.class
-										.getProtectionDomain()
-										.getCodeSource()
-										.getLocation()
-										.toURI()
-						).toString()
-				);
-			} else {
-				cp.add(
-						Path.of(
-								BinInstaller.class.getProtectionDomain().getCodeSource().getLocation().toURI()
-						).toString()
-				);
-			}
-		} catch (URISyntaxException e) {
-			LOGGER.error(e);
-		}
-		return join(cp, ";");
-	}
-
-	public void send(Message message) {
-		if (! running ) return;
-		try {
-			mainPipe.send( JANKSON.toJson(message).toJson() );
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("StringConcatenationInLoop")
-	public static String join(ArrayList<String> strings, String delimiter) {
-		String finalString = strings.get(0);
-		strings.remove(0);
-		for (String cppart : strings ) {
-			finalString += ( delimiter + cppart );
-		}
-		return finalString;
-	}
-
-	private static Path getLocation() {
-		try {
-			return Path.of(
-					GuestRunner.class
-							.getProtectionDomain()
-							.getCodeSource()
-							.getLocation()
-							.toURI()
-			);
-		} catch (URISyntaxException e) {
-			return null;
-		}
-	}
-
-	private static Path getLocation(Class<?> clazz) {
-		try {
-			return Path.of(
-					clazz
-							.getProtectionDomain()
-							.getCodeSource()
-							.getLocation()
-							.toURI()
-			);
-		} catch (URISyntaxException e) {
-			return null;
-		}
-	}
 }

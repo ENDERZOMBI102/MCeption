@@ -15,7 +15,7 @@ public class McPipe {
 	 * I can just redirect the child's STDOUT and STDIN to my own needs
 	 */
 
-	private final ServerSocketChannel server = ServerSocketChannel.open();;
+	private final ServerSocketChannel server = ServerSocketChannel.open();
 	private final SocketChannel writer = SocketChannel.open();
 	private SocketChannel reader = null;
 	private final Side side;
@@ -46,15 +46,16 @@ public class McPipe {
 			} catch (IOException e) {
 				// wtf how
 				e.printStackTrace();
+				return;
 			}
 		}
 	}
 
-	public String readString() throws IOException, NoMessage {
+	public String readString() throws IOException, NoMessageException {
 		return new String( read().array() );
 	}
 
-	public ByteBuffer read() throws IOException, NoMessage {
+	public ByteBuffer read() throws IOException, NoMessageException {
 		ByteBuffer data = ByteBuffer.wrap( new byte[] {} );
 		this.reader.read( data );
 		return data;
