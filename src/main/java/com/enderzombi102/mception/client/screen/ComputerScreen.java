@@ -30,7 +30,7 @@ public class ComputerScreen extends Screen {
 		TEXTURE = new NativeImageBackedTexture(
 				WIDTH,
 				HEIGHT,
-				true
+				false
 		);
 		MinecraftClient.getInstance().getTextureManager().registerTexture( getId("minecraft_screen"), TEXTURE );
 
@@ -40,7 +40,7 @@ public class ComputerScreen extends Screen {
 					ByteBuffer.wrap(
 							ImageUtils.toByteArray(
 									ImageIO.read(
-											ComputerScreen.class.getResource("/loadingScreen.png")
+											ComputerScreen.class.getResource("/assets/mception/loadingScreen.png")
 									)
 							)
 					)

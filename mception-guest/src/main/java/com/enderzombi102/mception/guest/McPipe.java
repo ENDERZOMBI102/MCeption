@@ -1,6 +1,5 @@
 package com.enderzombi102.mception.guest;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -61,7 +60,7 @@ public class McPipe {
 		return data;
 	}
 
-	public void send(String data) throws IOException {
+	public void send( String data ) throws IOException {
 		send( data.getBytes() );
 	}
 

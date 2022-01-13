@@ -2,10 +2,10 @@ package com.enderzombi102.mception.client;
 
 import blue.endless.jankson.Jankson;
 import com.enderzombi102.mception.guest.Dataclasses.*;
+import com.enderzombi102.mception.host.BinInstaller;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static com.enderzombi102.mception.MCeption.LOGGER;
+import static com.enderzombi102.mception.client.MCeptionClient.BIN_INSTALLER;
 import static com.enderzombi102.mception.guest.McPipe.Side;
 
 @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "unused", "OptionalGetWithoutIsPresent"})
@@ -26,8 +27,9 @@ public class GuestRunner {
 
 	private static final Jankson JANKSON = new Jankson.Builder().allowBareRootObject().build();
 	private static final Logger GUEST_LOGGER = LogManager.getLogger("MCeptionGuest");
+	// FIXME: This is an hack and should be replaced by localizing the java 8 install
 	private static final HashMap<String, String> JAVA_INSTALLATIONS = new HashMap<>() {{
-		put("ENDERZOMBI102", "C:\\Program Files\\Java\\jdk1.8.0_231\\bin\\java.exe");
+		put( "ENDERZOMBI102", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.312.7-hotspot\\bin\\java.exe" );
 	}};
 	private Process mcProcess;
 	private BufferedReader mcOutput;
@@ -57,7 +59,7 @@ public class GuestRunner {
 					.redirectErrorStream(true);
 			builder.environment().putAll(
 					new HashMap<>() {{
-						put( "lwjgl.dir", BinInstaller.getBinary("lwjgl").getParent().toString() );
+						put( "lwjgl.dir", BIN_INSTALLER.getBinary("lwjgl").getParent().toString() );
 						put( "mc.username", client.getSession().getUsername() );
 						put( "mc.uuid", client.getSession().getUuid() );
 					}}
