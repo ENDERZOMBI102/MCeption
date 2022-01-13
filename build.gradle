@@ -1,18 +1,7 @@
-import java.nio.ByteBuffer
-import java.nio.file.Files
-import java.nio.file.Path
-
-buildscript {
-	dependencies {
-		classpath 'net.fabricmc:tiny-remapper:0.6.0'
-	}
-}
-
 plugins {
 	id 'com.github.johnrengelman.shadow' version '7.0.0'
 	id 'fabric-loom' version '0.9-SNAPSHOT'
 }
-apply from: 'remap.gradle'
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -48,6 +37,7 @@ dependencies {
 	shade implementation( "org.apache.logging.log4j:log4j-core:$log4j_version" )
 	shade implementation( "org.apache.logging.log4j:log4j-api:$log4j_version" )
 	shade implementation( project(':mception-guest') )
+	shade implementation( project(':mception-host') )
 }
 
 shadowJar {
@@ -62,14 +52,10 @@ processResources {
 	}
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present. If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
 	classifier = 'sources'
 	from sourceSets.main.allSource
@@ -77,36 +63,4 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from 'LICENSE'
-}
-
-/**
-* Basically a copy of <@link com.enderzombi102.mception.client.BinInstaller>
-*/
-task downloadMinecraftDeps {
-	// actual gradle task
-	doLast {
-		def libsDir = Path.of( project.getChildProjects().get('mception-guest').getProjectDir().toString(), 'libs' )
-		// create main file dir
-		Files.createDirectories( libsDir )
-		// install minecraft 1.2.5
-		installIfNotPresent(
-				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
-				libsDir.resolve("client-obf.jar")
-		)
-		// remap minecraft 1.2.5
-		remapClient( libsDir, projectDir.toPath().resolve("src/main/resources/mappings.tiny") )
-	}
-}
-
-/**
- * Downloads a file from an url and saves it to the specified path
- * @param url url to downlaod
- * @param path path to save the file to
- */
-static void installIfNotPresent(String url, Path path ) {
-	//noinspection GroovyAssignabilityCheck
-	System.out.println( "Downloading $url to $path" )
-	def buf = ByteBuffer.wrap( URI.create( url ).toURL().openStream().readAllBytes() )
-	path.getParent().toFile().mkdirs()
-	Files.write( path, buf.array() )
 }
