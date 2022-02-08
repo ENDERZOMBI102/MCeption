@@ -12,7 +12,7 @@ public class MainMixin {
 	/**
 	 * @author ENDERZOMBI102
 	 */
-	@Inject( method = "<clinit>", at = @At("INVOKE"), cancellable = true )
+	@Inject( method = "<clinit>", at = @At("HEAD"), cancellable = true )
 	private static void onStaticInit(CallbackInfo info) {
 		info.cancel();
 	}

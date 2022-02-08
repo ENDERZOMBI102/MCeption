@@ -1,5 +1,7 @@
 package com.enderzombi102.mception.host;
 
+import com.enderzombi102.mception.version.BinaryFile;
+import com.enderzombi102.mception.version.VersionProvider;
 import net.fabricmc.mapping.tree.TinyMappingFactory;
 import net.fabricmc.mapping.tree.TinyTree;
 import net.fabricmc.tinyremapper.OutputConsumerPath;
@@ -28,9 +30,9 @@ public class BinInstaller implements Installer {
 		this.clientFile = getBinary("client").toFile();
 	}
 
-	public void doInstall( boolean remap ) throws IOException {
+	public void doInstall( VersionProvider provider, boolean remap ) throws IOException {
 		// create main file dir
-		Files.createDirectories(binDir);
+		Files.createDirectories( binDir );
 		if (! clientOnly ) {
 			// install jinput
 			downloadIfNotPresent( getJinput(), binDir.resolve("jinput-natives.jar"), true );
@@ -63,7 +65,7 @@ public class BinInstaller implements Installer {
 				getBinary("client-obf")
 		);
 		if ( remap )
-			remapClient();
+			remapClient( provider.getClient().getMappings( LOGGER ) );
 //		extractJar();
 		// remove meta inf
 //		Files.deleteIfExists( binDir.resolve("META-INF").resolve("MANIFEST.MF") );
@@ -137,7 +139,7 @@ public class BinInstaller implements Installer {
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public void remapClient() {
+	public void remapClient( TinyTree mappings ) {
 		// don't remap if already done
 		if ( isInstalled() )
 			return;
@@ -146,7 +148,7 @@ public class BinInstaller implements Installer {
 
 		LOGGER.info("[MCeption] Remapping client.jar");
 		TinyRemapper remapper = TinyRemapper.newRemapper()
-				.withMappings( MappingUtils.create( getMappings(), "client", "named" ) )
+				.withMappings( MappingUtils.create( mappings, "client", "named" ) )
 				.rebuildSourceFilenames(true)
 				.build();
 		try (
@@ -165,21 +167,6 @@ public class BinInstaller implements Installer {
 		} finally {
 			// finish the remapping process
 			remapper.finish();
-		}
-	}
-
-	private static TinyTree getMappings() {
-		try ( InputStream stream = Objects.requireNonNull( BinInstaller.class.getResourceAsStream("/mappings.tiny") ) ) {
-			return MappingUtils.wrapTree(
-				TinyMappingFactory.loadWithDetection(
-					new BufferedReader(
-							new InputStreamReader( stream )
-					)
-				)
-			);
-		} catch (IOException e) {
-			LOGGER.error( "[MCeption] error while reading stream!", e );
-			return TinyMappingFactory.EMPTY_TREE;
 		}
 	}
 }
