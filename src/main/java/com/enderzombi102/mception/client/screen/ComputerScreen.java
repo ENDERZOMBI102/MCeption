@@ -1,6 +1,5 @@
 package com.enderzombi102.mception.client.screen;
 
-import com.enderzombi102.mception.client.GuestRunner;
 import com.enderzombi102.mception.error.LibraryNotFoundError;
 import com.enderzombi102.mception.guest.ImageUtils;
 import com.enderzombi102.mception.host.Utilities;

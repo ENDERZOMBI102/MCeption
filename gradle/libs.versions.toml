@@ -1,0 +1,18 @@
+[versions]
+    loader = '0.17.11'
+    qfapi = '4.0.0-beta.27+0.73.0-1.19.2'
+    annotations = '23.0.0'
+    modmenu = '4.0.6'
+    pehkui = '3.6.0'
+
+[libraries]
+    loader = { module = 'org.quiltmc:quilt-loader', version.ref = 'loader' }
+    qfapi = { module = 'org.quiltmc.quilted-fabric-api:quilted-fabric-api', version.ref = 'qfapi' }
+    annotations = { module = 'org.jetbrains:annotations', version.ref = 'annotations' }
+    modmenu = { module = 'com.terraformersmc:modmenu', version.ref = 'modmenu' }
+
+[bundles]
+    implementation = [ 'annotations' ]
+    modImplementation = [ 'loader', 'qfapi', 'modmenu' ]
+    guest_implementation = [ 'annotations' ]
+    guest_modImplementation = [ 'loader' ]

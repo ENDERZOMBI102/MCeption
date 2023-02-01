@@ -1,0 +1,34 @@
+{
+	"schema_version": 1,
+	"quilt_loader": {
+		"group": "${group}",
+		"id": "mception",
+		"version": "${version}",
+		"intermediate_mappings": "net.fabricmc:intermediary",
+		"metadata": {
+			"name": "MCeption",
+			"description": "${description}",
+			"contributors": {
+				"ENDERZOMBI102": "Owner"
+			},
+			"contact": {
+				"sources": "${repo_url}",
+				"issues": "${repo_url}/-/issues"
+			},
+			"license": "MIT",
+			"icon": "assets/mception/icon.png"
+		},
+		"depends": [ /// ${dependencies}
+		],
+		"entrypoints": {
+			"init": [ "com.enderzombi102.mception.MCeption" ],
+			"client_init": [ "com.enderzombi102.mception.client.MCeptionClient" ]
+		}
+	},
+	"minecraft": {
+		"environment": "*"
+	},
+	"mixin": [
+		"mception.mixins.json"
+	]
+}
