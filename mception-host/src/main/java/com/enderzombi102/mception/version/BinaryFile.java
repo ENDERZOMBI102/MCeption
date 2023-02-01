@@ -48,7 +48,7 @@ public final class BinaryFile {
 		this.destFile = "bin/" + destFile + ".jar";
 		this.needExtraction = needExtraction;
 		this.isOsSpecific = isOsSpecific;
-		this.mappings = mappings;
+		this.mappings = "mappings/" + mappings;
 	}
 
 	public String getDownloadUrl() {
@@ -67,6 +67,7 @@ public final class BinaryFile {
 
 	public @Nullable TinyTree getMappings( Logger logger ) {
 		if ( this.mappings != null ) {
+			logger.info("Trying to load mappings at \"{}\"", this.mappings );
 			try ( InputStream stream = Objects.requireNonNull( BinaryFile.class.getResourceAsStream( this.mappings ) ) ) {
 				return MappingUtils.wrapTree(
 						TinyMappingFactory.loadWithDetection(
@@ -76,7 +77,7 @@ public final class BinaryFile {
 						)
 				);
 			} catch (IOException e) {
-				logger.error("[MCeption] error while reading stream!", e);
+				logger.error( "[MCeption] error while reading stream!", e );
 				return TinyMappingFactory.EMPTY_TREE;
 			}
 		}

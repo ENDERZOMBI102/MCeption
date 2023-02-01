@@ -59,17 +59,13 @@ public class BinInstaller implements Installer {
 					getBinary("lwjgl-util")
 			);
 		}
-		// install minecraft 1.2.5
+		// install minecraft client
 		downloadIfNotPresent(
 				"https://launcher.mojang.com/v1/objects/f690d4136b0026d452163538495b9b0e8513d718/client.jar",
 				getBinary("client-obf")
 		);
 		if ( remap )
 			remapClient( provider.getClient().getMappings( LOGGER ) );
-//		extractJar();
-		// remove meta inf
-//		Files.deleteIfExists( binDir.resolve("META-INF").resolve("MANIFEST.MF") );
-//		Files.deleteIfExists( binDir.resolve("META-INF") );
 	}
 
 	private static String getJinput() {
@@ -125,17 +121,6 @@ public class BinInstaller implements Installer {
 
 	public Path getBinary( String bin ) {
 		return binDir.resolve( bin + ".jar" );
-	}
-
-	private void extractJar() throws IOException {
-		if ( clientFile.exists() )
-			return;
-		Files.write(
-				client,
-				Objects.requireNonNull(
-						BinInstaller.class.getResourceAsStream("/client.jar")
-				).readAllBytes()
-		);
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")

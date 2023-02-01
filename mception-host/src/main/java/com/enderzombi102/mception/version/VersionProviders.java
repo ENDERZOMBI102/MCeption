@@ -86,11 +86,10 @@ public final class VersionProviders {
 					)
 			);
 		}};
-		private static final String RES_URL = "https://launchermeta.mojang.com/v1/packages/4759bad2824e419da9db32861fcdc3a274336532/pre-1.6.json";
 
 		@Override
 		public String getAssetsUrl() {
-			return RES_URL;
+			return MC_125_PROVIDER.getAssetsUrl(); // uses same assets
 		}
 
 		@Override
